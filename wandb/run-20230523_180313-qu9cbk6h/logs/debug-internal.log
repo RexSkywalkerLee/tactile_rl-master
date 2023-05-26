@@ -1,0 +1,230 @@
+2023-05-23 18:03:14,462 INFO    MainThread:90955 [internal.py:wandb_internal():90] W&B internal server running at pid: 90955, started at: 2023-05-23 18:03:14.462767
+2023-05-23 18:03:14,464 INFO    WriterThread:90955 [datastore.py:open_for_write():75] open: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/run-qu9cbk6h.wandb
+2023-05-23 18:03:14,465 DEBUG   SenderThread:90955 [sender.py:send():236] send: header
+2023-05-23 18:03:14,465 DEBUG   SenderThread:90955 [sender.py:send():236] send: run
+2023-05-23 18:03:14,474 INFO    SenderThread:90955 [sender.py:_maybe_setup_resume():493] checking resume status for None/isaacgymenvs/qu9cbk6h
+2023-05-23 18:03:14,818 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: check_version
+2023-05-23 18:03:14,829 INFO    SenderThread:90955 [dir_watcher.py:__init__():216] watching files in: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files
+2023-05-23 18:03:14,830 INFO    SenderThread:90955 [sender.py:_start_run_threads():815] run started: qu9cbk6h with start time 1684890194
+2023-05-23 18:03:14,830 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:14,830 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:14,830 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: check_version
+2023-05-23 18:03:14,957 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: run_start
+2023-05-23 18:03:14,965 DEBUG   HandlerThread:90955 [meta.py:__init__():35] meta init
+2023-05-23 18:03:14,965 DEBUG   HandlerThread:90955 [meta.py:__init__():49] meta init done
+2023-05-23 18:03:14,965 DEBUG   HandlerThread:90955 [meta.py:probe():209] probe
+2023-05-23 18:03:14,975 DEBUG   HandlerThread:90955 [git.py:repo():29] git repository is invalid
+2023-05-23 18:03:14,976 DEBUG   HandlerThread:90955 [meta.py:_save_pip():53] save pip
+2023-05-23 18:03:14,976 DEBUG   HandlerThread:90955 [meta.py:_save_pip():67] save pip done
+2023-05-23 18:03:14,976 DEBUG   HandlerThread:90955 [meta.py:_save_conda():74] save conda
+2023-05-23 18:03:14,980 ERROR   HandlerThread:90955 [meta.py:_save_conda():83] Error saving conda packages
+Traceback (most recent call last):
+  File "/home/leek/anaconda3/envs/pytorch3d/lib/python3.8/site-packages/wandb/sdk/internal/meta.py", line 79, in _save_conda
+    subprocess.call(
+  File "/home/leek/anaconda3/envs/pytorch3d/lib/python3.8/subprocess.py", line 340, in call
+    with Popen(*popenargs, **kwargs) as p:
+  File "/home/leek/anaconda3/envs/pytorch3d/lib/python3.8/subprocess.py", line 858, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/home/leek/anaconda3/envs/pytorch3d/lib/python3.8/subprocess.py", line 1704, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'conda'
+2023-05-23 18:03:14,981 DEBUG   HandlerThread:90955 [meta.py:_save_conda():84] save conda done
+2023-05-23 18:03:14,981 DEBUG   HandlerThread:90955 [meta.py:probe():247] probe done
+2023-05-23 18:03:15,011 DEBUG   SenderThread:90955 [sender.py:send():236] send: files
+2023-05-23 18:03:15,012 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-metadata.json with policy now
+2023-05-23 18:03:15,016 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: stop_status
+2023-05-23 18:03:15,016 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: stop_status
+2023-05-23 18:03:15,225 DEBUG   SenderThread:90955 [sender.py:send():236] send: telemetry
+2023-05-23 18:03:15,581 INFO    Thread-11 :90955 [upload_job.py:push():138] Uploaded file /tmp/tmp9hndvl9hwandb/3kyxipz3-wandb-metadata.json
+2023-05-23 18:03:15,830 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_created():269] file/dir created: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/requirements.txt
+2023-05-23 18:03:15,831 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_created():269] file/dir created: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/conda-environment.yaml
+2023-05-23 18:03:15,831 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_created():269] file/dir created: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-metadata.json
+2023-05-23 18:03:15,831 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_created():269] file/dir created: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-summary.json
+2023-05-23 18:03:15,831 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_created():269] file/dir created: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:17,830 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:19,831 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:20,156 INFO    HandlerThread:90955 [handler.py:handle_tbrecord():723] handling tbrecord: tbrecord {
+  log_dir: "runs/Baseline_23-18-03-15/summaries"
+  save: true
+}
+
+2023-05-23 18:03:20,156 DEBUG   HandlerThread:90955 [config_util.py:dict_from_config_file():100] no default config file found in config-defaults.yaml
+2023-05-23 18:03:20,168 DEBUG   SenderThread:90955 [sender.py:send():236] send: tbrecord
+2023-05-23 18:03:20,169 DEBUG   SenderThread:90955 [sender.py:send():236] send: files
+2023-05-23 18:03:20,169 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file events.out.tfevents.1684890200.wanglab-X570-AORUS-ELITE with policy live
+2023-05-23 18:03:20,831 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_created():269] file/dir created: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/events.out.tfevents.1684890200.wanglab-X570-AORUS-ELITE
+2023-05-23 18:03:21,832 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:25,832 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:30,513 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: stop_status
+2023-05-23 18:03:30,513 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: stop_status
+2023-05-23 18:03:37,836 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:43,276 DEBUG   SenderThread:90955 [sender.py:send():236] send: stats
+2023-05-23 18:03:43,838 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:44,844 WARNING MainThread:90955 [internal.py:wandb_internal():153] Internal process interrupt: 1
+2023-05-23 18:03:45,042 DEBUG   SenderThread:90955 [sender.py:send():236] send: telemetry
+2023-05-23 18:03:45,221 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,221 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,224 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,224 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,224 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,232 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,232 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,232 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,232 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,232 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,232 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,233 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,233 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,233 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,233 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,234 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,234 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,234 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,234 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,234 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,235 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,235 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,235 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,235 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,235 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,235 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,236 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,236 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,236 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,236 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,237 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,237 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,237 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,237 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:45,237 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:45,238 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:45,839 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/events.out.tfevents.1684890200.wanglab-X570-AORUS-ELITE
+2023-05-23 18:03:45,839 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/config.yaml
+2023-05-23 18:03:45,839 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-summary.json
+2023-05-23 18:03:45,840 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:46,375 INFO    Thread-14 :90955 [upload_job.py:push():138] Uploaded file /tmp/tmp9hndvl9hwandb/3fsk27dq-events.out.tfevents.1684890200.wanglab-X570-AORUS-ELITE
+2023-05-23 18:03:47,109 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:47,109 DEBUG   SenderThread:90955 [sender.py:send():236] send: exit
+2023-05-23 18:03:47,110 INFO    SenderThread:90955 [sender.py:send_exit():372] handling exit code: 255
+2023-05-23 18:03:47,110 INFO    SenderThread:90955 [sender.py:send_exit():374] handling runtime: 32
+2023-05-23 18:03:47,110 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:47,110 INFO    SenderThread:90955 [sender.py:send_exit():380] send defer
+2023-05-23 18:03:47,110 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:47,111 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:47,111 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 0
+2023-05-23 18:03:47,111 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:47,111 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 0
+2023-05-23 18:03:47,111 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 1
+2023-05-23 18:03:47,112 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:47,112 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 1
+2023-05-23 18:03:47,212 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:47,212 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:47,212 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 1
+2023-05-23 18:03:47,212 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 2
+2023-05-23 18:03:47,213 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:47,213 DEBUG   SenderThread:90955 [sender.py:send():236] send: stats
+2023-05-23 18:03:47,213 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:47,213 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 2
+2023-05-23 18:03:47,214 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:47,214 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 2
+2023-05-23 18:03:47,214 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 3
+2023-05-23 18:03:47,214 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:47,214 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 3
+2023-05-23 18:03:47,840 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-summary.json
+2023-05-23 18:03:47,840 INFO    Thread-7  :90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:53,218 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:53,218 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:53,218 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:53,219 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 3
+2023-05-23 18:03:53,219 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 4
+2023-05-23 18:03:53,219 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:53,219 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:53,220 DEBUG   SenderThread:90955 [sender.py:send():236] send: history
+2023-05-23 18:03:53,220 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:53,222 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:53,222 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 4
+2023-05-23 18:03:53,223 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:53,223 DEBUG   SenderThread:90955 [sender.py:send():236] send: summary
+2023-05-23 18:03:53,231 INFO    SenderThread:90955 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2023-05-23 18:03:53,231 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:53,231 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 4
+2023-05-23 18:03:53,231 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 5
+2023-05-23 18:03:53,231 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:53,231 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 5
+2023-05-23 18:03:53,231 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:53,231 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 5
+2023-05-23 18:03:53,321 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:53,542 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 6
+2023-05-23 18:03:53,542 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:53,543 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:53,543 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 6
+2023-05-23 18:03:53,543 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:53,543 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 6
+2023-05-23 18:03:53,543 INFO    SenderThread:90955 [dir_watcher.py:finish():353] shutting down directory watcher
+2023-05-23 18:03:53,644 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:53,843 INFO    SenderThread:90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/config.yaml
+2023-05-23 18:03:53,843 INFO    SenderThread:90955 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-summary.json
+2023-05-23 18:03:53,843 INFO    SenderThread:90955 [dir_watcher.py:finish():383] scan: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [dir_watcher.py:finish():397] scan save: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-summary.json wandb-summary.json
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [dir_watcher.py:finish():397] scan save: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/conda-environment.yaml conda-environment.yaml
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [dir_watcher.py:finish():397] scan save: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/config.yaml config.yaml
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [dir_watcher.py:finish():397] scan save: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/events.out.tfevents.1684890200.wanglab-X570-AORUS-ELITE events.out.tfevents.1684890200.wanglab-X570-AORUS-ELITE
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [dir_watcher.py:finish():397] scan save: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log output.log
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [dir_watcher.py:finish():397] scan save: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-metadata.json wandb-metadata.json
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [dir_watcher.py:finish():397] scan save: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/requirements.txt requirements.txt
+2023-05-23 18:03:53,844 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 7
+2023-05-23 18:03:53,844 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:53,850 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:53,850 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 7
+2023-05-23 18:03:53,855 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:53,855 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 7
+2023-05-23 18:03:53,855 INFO    SenderThread:90955 [file_pusher.py:finish():171] shutting down file pusher
+2023-05-23 18:03:53,948 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:53,948 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,049 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:54,050 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,151 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:54,152 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,254 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:54,254 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,307 INFO    Thread-15 :90955 [upload_job.py:push():138] Uploaded file /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/wandb-summary.json
+2023-05-23 18:03:54,332 INFO    Thread-16 :90955 [upload_job.py:push():138] Uploaded file /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/config.yaml
+2023-05-23 18:03:54,340 INFO    Thread-18 :90955 [upload_job.py:push():138] Uploaded file /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/requirements.txt
+2023-05-23 18:03:54,356 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:54,356 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,371 INFO    Thread-17 :90955 [upload_job.py:push():138] Uploaded file /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/files/output.log
+2023-05-23 18:03:54,458 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:54,459 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,561 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:54,561 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,572 INFO    Thread-6  :90955 [sender.py:transition_state():393] send defer: 8
+2023-05-23 18:03:54,572 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:54,572 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 8
+2023-05-23 18:03:54,573 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:54,573 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 8
+2023-05-23 18:03:54,663 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:54,928 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 9
+2023-05-23 18:03:54,928 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:54,928 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:54,928 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 9
+2023-05-23 18:03:54,929 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:54,929 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 9
+2023-05-23 18:03:54,929 INFO    SenderThread:90955 [sender.py:transition_state():393] send defer: 10
+2023-05-23 18:03:54,929 DEBUG   SenderThread:90955 [sender.py:send():236] send: final
+2023-05-23 18:03:54,929 DEBUG   SenderThread:90955 [sender.py:send():236] send: footer
+2023-05-23 18:03:54,930 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: defer
+2023-05-23 18:03:54,930 INFO    HandlerThread:90955 [handler.py:handle_request_defer():163] handle defer: 10
+2023-05-23 18:03:54,930 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: defer
+2023-05-23 18:03:54,930 INFO    SenderThread:90955 [sender.py:send_request_defer():389] handle sender defer: 10
+2023-05-23 18:03:55,030 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: poll_exit
+2023-05-23 18:03:55,030 DEBUG   SenderThread:90955 [sender.py:send_request():250] send_request: poll_exit
+2023-05-23 18:03:55,030 INFO    SenderThread:90955 [file_pusher.py:join():176] waiting for file pusher
+2023-05-23 18:03:55,352 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: sampled_history
+2023-05-23 18:03:55,353 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: get_summary
+2023-05-23 18:03:55,354 DEBUG   HandlerThread:90955 [handler.py:handle_request():140] handle_request: shutdown
+2023-05-23 18:03:55,354 INFO    HandlerThread:90955 [handler.py:finish():806] shutting down handler
+2023-05-23 18:03:55,930 INFO    WriterThread:90955 [datastore.py:close():279] close: /home/leek/tactile_rl-master/wandb/run-20230523_180313-qu9cbk6h/run-qu9cbk6h.wandb
+2023-05-23 18:03:56,250 INFO    SenderThread:90955 [sender.py:finish():1114] shutting down sender
+2023-05-23 18:03:56,251 INFO    SenderThread:90955 [file_pusher.py:finish():171] shutting down file pusher
+2023-05-23 18:03:56,251 INFO    SenderThread:90955 [file_pusher.py:join():176] waiting for file pusher
+2023-05-23 18:03:56,253 INFO    MainThread:90955 [internal.py:handle_exit():80] Internal process exited

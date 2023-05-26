@@ -1,0 +1,10 @@
+cp runs/AllegroArmLeftContinuous/NEWAxis_z_S1.0_C0.0_M0.02022-10-12_11-01-44/nn/last_AllegroArmLeftContinuous_ep_1600_rew_605.09265.pth ../z_new.pth
+
+# November 22
+yinzhProjectsisaacgymenvsRunsNewMOLSTM-N20d--z-EMA-0.2-CP-0.0-DF-20.0-S1.0_2022-11-22_03-44-27Overview
+kubectl cp yinzh-login-new:/home/data/isaacgym_rl/runs/NewMOLSTM-N20d--z-EMA-0.2-CP-0.0-DF-20.0-S1.0/NewMOLSTM-N20d-Axis_z_S1.0_C0.0_M0.02022-11-22_03-44-27/nn/last_NewMOLSTM-N20d--z-EMA-0.2-CP-0.0-DF-20.0-S1.0_ep_4800_rew_957.5031.pth  ./z_lstm_nov22-2.pth
+python ./isaacgymenvs/train.py task=AllegroArmMOLSTM test=True checkpoint=./z_lstm_nov22-2.pth task.env.axis=z task.env.handInit=default task.env.enableDebugVis=True pipeline=cpu task.env.sensor=thick task.env.asymmetric_observations=True train.params.network.mlp.units=[512,256]
+
+yinzhProjectsisaacgymenvsRunsNewMOLSTM-N20d--y-EMA-0.2-CP-0.0-DF-20.0-S2.0_2022-11-22_08-17-03
+kubectl cp yinzh-login-new:/home/data/isaacgym_rl/runs/NewMOLSTM-N20d--y-EMA-0.2-CP-0.0-DF-20.0-S2.0/NewMOLSTM-N20d-Axis_y_S2.0_C0.0_M0.02022-11-22_03-44-44/nn/last_NewMOLSTM-N20d--y-EMA-0.2-CP-0.0-DF-20.0-S2.0_ep_1800_rew_1681.8859.pth  ./y_lstm_nov22-2.pth
+python ./isaacgymenvs/train.py task=AllegroArmMOLSTM test=True checkpoint=./y_lstm_nov22-2.pth task.env.axis=y task.env.handInit=default task.env.enableDebugVis=True pipeline=cpu task.env.sensor=thick task.env.asymmetric_observations=True train.params.network.mlp.units=[512,256,256]

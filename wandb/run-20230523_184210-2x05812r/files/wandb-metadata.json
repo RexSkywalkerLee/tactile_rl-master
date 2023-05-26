@@ -1,0 +1,24 @@
+{
+    "os": "Linux-5.19.0-41-generic-x86_64-with-glibc2.17",
+    "python": "3.8.16",
+    "heartbeatAt": "2023-05-24T01:42:11.811067",
+    "startedAt": "2023-05-24T01:42:10.947960",
+    "docker": null,
+    "gpu": "NVIDIA GeForce RTX 3090 Ti",
+    "gpu_count": 1,
+    "cpu_count": 24,
+    "cuda": null,
+    "args": [
+        "task=AllegroArmMOAR",
+        "headless=True",
+        "seed=37",
+        "experiment=Baseline_sd37",
+        "wandb_activate=True"
+    ],
+    "state": "running",
+    "program": "isaacgymenvs/train.py",
+    "codePath": "isaacgymenvs/train.py",
+    "host": "wanglab-X570-AORUS-ELITE",
+    "username": "leek",
+    "executable": "/home/leek/anaconda3/envs/pytorch3d/bin/python3"
+}

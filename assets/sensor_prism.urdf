@@ -1,0 +1,55 @@
+<robot name="sensor">
+
+	<!-- * * * Link Definitions * * * -->
+
+
+ 	<link name="sensor_link">
+		<visual>
+		    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.5 0.5 0.01"/>
+			</geometry>
+			<material name="Pink">
+	       		<color rgba="1.0 0.0 0.9 1.0"/>
+	     	</material>
+		</visual>
+
+		<collision>
+      		<geometry>
+				<box size="0.5 0.5 0.01"/>
+      		</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+    	</collision>
+
+	</link>
+
+	<link name="base_link">
+		<visual>
+		    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.6 0.6 0.04"/>
+			</geometry>
+			<material name="White">
+	       		<color rgba="0.9 0.9 0.9 1.0"/>
+	     	</material>
+		</visual>
+
+		<collision>
+      		<geometry>
+				<box size="0.6 0.6 0.04"/>
+      		</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+    	</collision>
+
+	</link>
+
+
+	<joint name="joint" type="prismatic">
+    	<parent link="base_link"/>
+    	<child link="sensor_link"/>
+		<axis xyz="0 0 1"/>
+    	<origin rpy="0 0 0" xyz="0 0 0.05"/>
+		<limit effort="1000.0" lower="0.00" upper="0.00" velocity="0.001"/>
+  	</joint>
+
+</robot>

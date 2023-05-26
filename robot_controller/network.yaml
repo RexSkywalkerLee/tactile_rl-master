@@ -1,0 +1,31 @@
+params:
+  algo:
+    name: a2c_continuous
+
+  model:
+    name: continuous_a2c_tanhlogstd
+
+  network:
+    name: actor_critic
+    separate: False
+
+    space:
+      continuous:
+        mu_activation: None
+        sigma_activation: None
+        mu_init:
+          name: default
+        sigma_init:
+          name: const_initializer
+          val: 0
+        fixed_sigma: True
+
+    mlp:
+      units: [512, 256, 128]
+      activation: elu
+      d2rl: False
+
+      initializer:
+        name: default
+      regularizer:
+        name: None

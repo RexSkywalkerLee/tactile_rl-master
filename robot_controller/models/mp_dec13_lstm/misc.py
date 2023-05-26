@@ -1,0 +1,1 @@
+# python ./isaacgymenvs/train.py task=AllegroArmMOALSTM test=True checkpoint=./yz_lstm_dec14.pth task.env.axis=z task.env.handInit=default task.env.enableDebugVis=True pipeline=cpu task.env.sensor=thick task.env.asymmetric_observations=True train.params.network.mlp.units=[2048,1024] train.params.network.rnn.units=512

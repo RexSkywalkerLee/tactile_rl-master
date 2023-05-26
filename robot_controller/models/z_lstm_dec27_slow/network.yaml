@@ -1,0 +1,39 @@
+params:
+  algo:
+    name: a2c_continuous
+
+  model:
+    name: continuous_a2c_logstd
+
+  network:
+    name: actor_critic
+    separate: False
+
+    space:
+      continuous:
+        mu_activation: tanh
+        sigma_activation: None
+        mu_init:
+          name: default
+        sigma_init:
+          name: const_initializer
+          val: 0
+        fixed_sigma: False
+
+    mlp:
+      units: [1024, 1024]
+      activation: elu
+      d2rl: False
+
+      initializer:
+        name: default
+      regularizer:
+        name: None
+
+    rnn:
+      name: lstm
+      units: 512
+      layers: 1
+      before_mlp: False
+      concat_input: True
+      layer_norm: True

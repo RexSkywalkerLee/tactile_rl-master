@@ -1,0 +1,7 @@
+<collision>
+  <origin xyz="0 0 0"/>
+  <geometry>
+    <mesh filename="{obj_file_path}" scale=".03 .03 .03"/>
+<!--          <mesh filename="meshes/custom/obj0_ball.obj" scale=".05 .05 .05"/>-->
+  </geometry>
+</collision>

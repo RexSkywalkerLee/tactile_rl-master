@@ -1,0 +1,96 @@
+<robot name="sensor">
+
+
+	<link name="base_link">
+		<visual>
+		    <origin xyz="0.3 0 0.0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.6 0.6 0.04"/>
+			</geometry>
+			<material name="White">
+	       		<color rgba="0.9 0.9 0.9 1.0"/>
+	     	</material>
+		</visual>
+
+		<collision>
+      		<geometry>
+				<box size="0.6 0.6 0.04"/>
+      		</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+    	</collision>
+		<inertial>
+			<mass value="10.0"/>
+
+		</inertial>
+	</link>
+
+
+	<!-- * * * Link Definitions * * * -->
+  	<link name="root_link">
+		<visual>
+		    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.6 0.6 0.04"/>
+			</geometry>
+			<material name="White">
+	       		<color rgba="0.9 0.9 0.9 1.0"/>
+	     	</material>
+		</visual>
+
+		<collision>
+      		<geometry>
+				<box size="0.6 0.6 0.04"/>
+      		</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+    	</collision>
+		<inertial>
+			<mass value="10.0"/>
+
+		</inertial>
+	</link>
+
+
+ 	<link name="sensor_link">
+		<visual>
+		    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.5 0.5 0.02"/>
+			</geometry>
+			<material name="Pink">
+	       		<color rgba="1.0 0.0 0.9 1.0"/>
+	     	</material>
+		</visual>
+
+		<collision>
+      		<geometry>
+				<box size="0.5 0.5 0.02"/>
+      		</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+    	</collision>
+
+		<inertial>
+			<mass value="1.0"/>
+
+		</inertial>
+
+	</link>
+
+
+	<joint name="joint" type="prismatic">
+    	<parent link="base_link"/>
+    	<child link="sensor_link"/>
+		<axis xyz="0 0 1"/>
+    	<origin rpy="0 0 0" xyz="0.3 0 0.1"/>
+		<limit effort="1000.0" lower="0.0" upper="0.0" velocity="0.1"/>
+  	</joint>
+
+
+	<joint name="joint2" type="revolute">
+      	<axis xyz="0 1 0"/>
+    	<parent link="root_link"/>
+    	<child link="base_link"/>
+    	<origin rpy="0 0 0" xyz="0.3 0 0.05"/>
+		<limit effort="100.0" lower="-3.14" upper="0.0" velocity="0.1"/>
+  	</joint>
+
+</robot>

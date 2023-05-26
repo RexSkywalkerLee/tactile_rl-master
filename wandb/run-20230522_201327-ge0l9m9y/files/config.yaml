@@ -1,0 +1,377 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.12.21
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.8.16
+    start_time: 1684811607
+    t:
+      1:
+      - 1
+      - 30
+      - 50
+      - 55
+      2:
+      - 1
+      - 30
+      - 50
+      - 55
+      3:
+      - 13
+      - 16
+      - 35
+      4: 3.8.16
+      5: 0.12.21
+      8:
+      - 5
+capture_video:
+  desc: null
+  value: false
+capture_video_freq:
+  desc: null
+  value: 1464
+capture_video_len:
+  desc: null
+  value: 100
+checkpoint:
+  desc: null
+  value: ''
+experiment:
+  desc: null
+  value: Baseline
+force_render:
+  desc: null
+  value: true
+graphics_device_id:
+  desc: null
+  value: 0
+headless:
+  desc: null
+  value: true
+max_iterations:
+  desc: null
+  value: ''
+multi_gpu:
+  desc: null
+  value: false
+num_envs:
+  desc: null
+  value: ''
+num_subscenes:
+  desc: null
+  value: 4
+num_threads:
+  desc: null
+  value: 4
+physics_engine:
+  desc: null
+  value: physx
+pipeline:
+  desc: null
+  value: gpu
+player_action_savepath:
+  desc: null
+  value: ./a.pth
+rl_device:
+  desc: null
+  value: cuda:0
+seed:
+  desc: null
+  value: -1
+sim_device:
+  desc: null
+  value: cuda:0
+solver_type:
+  desc: null
+  value: 1
+task:
+  desc: null
+  value:
+    env:
+      actionPenaltyScale: 0.0
+      actionsMovingAverage: 0.8
+      aggregateMode: 1
+      asset:
+        assetFileName: urdf/xarm6/xarm6_allegro_left_fsr.urdf
+        assetFileNameBlock: urdf/objects/cube_multicolor_allegro.urdf
+        assetFileNameEgg: mjcf/open_ai_assets/hand/egg.xml
+        assetFileNamePen: mjcf/open_ai_assets/hand/pen.xml
+      asymmetric_observations: true
+      aux_coef: 0.0
+      axis: z
+      clipActions: 1.0
+      clipObservations: 5.0
+      contact_coef: 0.0
+      controlFrequencyInv: 6
+      controlPenaltyScale: -0.0
+      disableSet: 0
+      distRewardScale: -3.0
+      dofSpeedScale: 20.0
+      enableDebugVis: false
+      envSpacing: 0.75
+      episodeLength: 500
+      fallDistance: 0.1
+      fallPenalty: -50.0
+      finger_coef: 0.1
+      forceDecay: 0.99
+      forceDecayInterval: 0.1
+      forceLimitScale: 1.0
+      forceProbRange:
+      - 0.2
+      - 0.25
+      forceScale: 2.0
+      force_debug: false
+      handInit: default
+      latency: 0.2
+      m_low: 0.2
+      m_up: 0.6
+      main_coef: 0.0
+      maxConsecutiveSuccesses: 0
+      numEnvs: 8192
+      numTestEnvs: 16
+      objInit: new
+      objSet: '27'
+      objectType: block
+      obs_stack: 4
+      observationType: partial_stack
+      printNumSuccesses: false
+      reachGoalBonus: 250
+      relScale: 0.2
+      resetDofPosRandomInterval: 0.2
+      resetDofVelRandomInterval: 0.0
+      resetPositionNoise: 0.01
+      resetRotationNoise: 0.0
+      rewardType: finger
+      robotStiffness: 3.0
+      rotEps: 0.1
+      rotRewardScale: 1.0
+      sensor: thick
+      sensorNoise: 0.1
+      sensorThresh: 1.0
+      skill_step: 500
+      spin_coef: 1.0
+      startPositionNoise: 0.01
+      startRotationNoise: 0.0
+      stiffnessScale: 1.0
+      successTolerance: 0.1
+      test:
+        test_m_low: 0.1
+        test_m_up: 1.4
+      torque_coef: -0.0003
+      useInitRandomRotation: false
+      usePrevTarget: false
+      useRelativeControl: true
+      vel_coef: -0.1
+      work_coef: -0.0003
+    name: AllegroArmMOAR
+    physics_engine: physx
+    sim:
+      dt: 0.01667
+      gravity:
+      - 0.0
+      - 0.0
+      - -9.81
+      physx:
+        bounce_threshold_velocity: 0.2
+        contact_collection: 2
+        contact_offset: 0.002
+        default_buffer_size_multiplier: 5.0
+        max_depenetration_velocity: 100.0
+        max_gpu_contact_pairs: 8388608
+        num_position_iterations: 8
+        num_subscenes: 4
+        num_threads: 4
+        num_velocity_iterations: 0
+        rest_offset: 0.0
+        solver_type: 1
+        use_gpu: true
+      substeps: 2
+      up_axis: z
+      use_gpu_pipeline: true
+    task:
+      enableCameraSensors: false
+      randomization_params:
+        actions:
+          distribution: gaussian
+          operation: additive
+          range:
+          - 0.0
+          - 0.04
+          range_correlated:
+          - 0
+          - 0.015
+        actor_params:
+          hand:
+            color: true
+            dof_properties:
+              lower:
+                distribution: gaussian
+                operation: additive
+                range:
+                - 0
+                - 1.0e-05
+              stiffness:
+                distribution: loguniform
+                operation: scaling
+                range:
+                - 0.75
+                - 1.5
+              upper:
+                distribution: gaussian
+                operation: additive
+                range:
+                - 0
+                - 1.0e-05
+        frequency: 1000
+        observations:
+          distribution: gaussian
+          operation: additive
+          range:
+          - 0
+          - 0.05
+          range_correlated:
+          - 0
+          - 0.001
+        sim_params:
+          gravity:
+            distribution: gaussian
+            operation: additive
+            range:
+            - 0
+            - 0.3
+      randomize: true
+task_name:
+  desc: null
+  value: AllegroArmMOAR
+test:
+  desc: null
+  value: false
+torch_deterministic:
+  desc: null
+  value: false
+train:
+  desc: null
+  value:
+    params:
+      algo:
+        name: a2c_continuous
+      config:
+        auto_prefix: S1.0_C0.0_M0.0
+        bounds_loss_coef: 0.005
+        bptt_len: 16
+        central_value_config:
+          clip_value: true
+          kl_threshold: 0.016
+          learning_rate: 0.0005
+          lr_schedule: adaptive
+          mini_epochs: 4
+          minibatch_size: 32
+          network:
+            central_value: true
+            mlp:
+              activation: elu
+              d2rl: false
+              initializer:
+                name: default
+              regularizer:
+                name: None
+              units:
+              - 512
+              - 512
+              - 256
+              - 256
+            name: actor_critic
+          normalize_input: true
+          schedule_type: standard
+          truncate_grads: true
+        clip_value: true
+        critic_coef: 5
+        e_clip: 0.2
+        entropy_coef: 0.0
+        env_name: rlgpu
+        gamma: 0.99
+        grad_norm: 1.0
+        horizon_length: 64
+        kl_threshold: 0.02
+        learning_rate: 0.0001
+        lr_schedule: adaptive
+        max_epochs: 20000
+        mini_epochs: 4
+        minibatch_size: 32
+        mixed_precision: false
+        multi_gpu: false
+        name: Baseline
+        normalize_advantage: true
+        normalize_input: true
+        normalize_value: true
+        num_actors: 8192
+        player:
+          desired_games: 10000
+          deterministic: true
+          games_num: 2
+          games_repeat: 1
+          print_stats: true
+        player_collect: false
+        ppo: true
+        prefix: ''
+        print_stats: true
+        reward_shaper:
+          scale_value: 0.01
+        save_best_after: 100
+        save_frequency: 100
+        schedule_type: standard
+        score_to_win: 100000
+        seq_length: 4
+        tau: 0.95
+        truncate_grads: Trues
+        user_prefix: ''
+        value_bootstrap: true
+        weight_decay: 0.0
+      load_checkpoint: false
+      load_path: ''
+      model:
+        name: continuous_a2c_logstd
+      network:
+        mlp:
+          activation: elu
+          d2rl: false
+          initializer:
+            name: default
+          regularizer:
+            name: None
+          units:
+          - 512
+          - 256
+          - 128
+        name: actor_critic
+        separate: false
+        space:
+          continuous:
+            fixed_sigma: false
+            mu_activation: None
+            mu_init:
+              name: default
+            sigma_activation: None
+            sigma_init:
+              name: const_initializer
+              val: 0
+      seed: -1
+wandb_activate:
+  desc: null
+  value: true
+wandb_entity:
+  desc: null
+  value: ''
+wandb_group:
+  desc: null
+  value: ''
+wandb_name:
+  desc: null
+  value: Baseline
+wandb_project:
+  desc: null
+  value: isaacgymenvs
