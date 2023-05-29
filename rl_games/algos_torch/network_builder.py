@@ -204,10 +204,14 @@ class A2CBuilder(NetworkBuilder):
                     self.critic_cnn = self._build_conv( **cnn_args)
 
             ########
-            input_shape = (256 + 256,)
-            mlp_input_shape = input_shape
-            # mlp_input_shape = self._calc_input_size(input_shape, self.actor_cnn)
+            if input_shape[0] == 340:
+                self.full_state_obs = True
+                input_shape = (256+256,)
+            else:
+                self.full_state_obs = False
             ########
+
+            mlp_input_shape = self._calc_input_size(input_shape, self.actor_cnn)
 
             in_mlp_shape = mlp_input_shape
             if len(self.units) == 0:
@@ -249,23 +253,34 @@ class A2CBuilder(NetworkBuilder):
             if self.separate:
                 self.critic_mlp = self._build_mlp(**mlp_args)
 
-            self.no_tactile_mlp = torch.nn.Sequential(
-                torch.nn.Linear(self.n_stack*(45+24), 64),
-                torch.nn.ELU(),
-                torch.nn.Linear(64, 128),
-                torch.nn.ELU(),
-                torch.nn.Linear(128, 256),
-                torch.nn.ELU()
-            )
+            ##################
+            if self.full_state_obs:
+                self.no_tactile_mlp = torch.nn.Sequential(
+                    torch.nn.Linear(self.n_stack*(45+24), 64),
+                    torch.nn.ELU(),
+                    torch.nn.Linear(64, 128),
+                    torch.nn.ELU(),
+                    torch.nn.Linear(128, 256),
+                    torch.nn.ELU()
+                )
 
-            self.tactile_mlp= torch.nn.Sequential(
-                torch.nn.Linear(self.n_stack*16, 64),
-                torch.nn.ELU(),
-                torch.nn.Linear(64, 128),
-                torch.nn.ELU(),
-                torch.nn.Linear(128, 256),
-                torch.nn.ELU()
-            )
+                self.tactile_mlp= torch.nn.Sequential(
+                    torch.nn.Linear(self.n_stack*16, 64),
+                    torch.nn.ELU(),
+                    torch.nn.Linear(64, 128),
+                    torch.nn.ELU(),
+                    torch.nn.Linear(128, 256),
+                    torch.nn.ELU()
+                )
+
+                if self.use_pretrain_tactile:
+                    pretrain_dict = torch.load('/home/leek/tactile_rl-master/pretrain_network.pth')['net_state_dict']
+                    own_dict = self.tactile_mlp.state_dict()
+                    for name in own_dict.keys():
+                        pre_name = 'tactile_encoder.' + name
+                        own_dict[name].copy_(pretrain_dict[pre_name].data)
+                    print("Loaded Pretrained Network Weights!")
+            ############
 
             self.value = torch.nn.Linear(out_size, self.value_size)
             self.value_act = self.activations_factory.create(self.value_activation)
@@ -312,7 +327,6 @@ class A2CBuilder(NetworkBuilder):
 
         def forward(self, obs_dict):
             obs = obs_dict['obs']
-            print(obs.size())
             states = obs_dict.get('rnn_states', None)
             seq_length = obs_dict.get('seq_length', 1)
             dones = obs_dict.get('dones', None)
@@ -403,21 +417,25 @@ class A2CBuilder(NetworkBuilder):
             else:
                 # out = obs
                 # out = self.actor_cnn(out)
+                if self.full_state_obs:
+                    no_tactile_obs = torch.zeros((obs.size(0), self.n_stack, 45+24)).to(obs.device)
+                    tactile = torch.zeros((obs.size(0), self.n_stack, 16)).to(obs.device)
+                    for n in range(self.n_stack):
+                        no_tactile_obs[:,n,0:45] = obs[:,n*(45+16+24):45+n*(45+16+24)]
+                        tactile[:,n,:] = obs[:,45+n*(45+16+24):61+n*(45+16+24)]
+                        no_tactile_obs[:,n,45:69] = obs[:,61+n*(45+16+24):85+n*(45+16+24)]
 
-                no_tactile_obs = torch.zeros((obs.size(0), self.n_stack, 45+24))
-                tactile = torch.zeros((obs.size(0), self.n_stack, 16))
-                for n in range(self.n_stack):
-                    no_tactile_obs[:,n,0:45] = obs[:,n*(45+16+24):45+n*(45+16+24)]
-                    tactile[:,n,:] = obs[:,45+n*(45+16+24):61+n*(45+16+24)]
-                    no_tactile_obs[:,n,45:69] = obs[:,61+n*(45+16+24):85+n*(45+16+24)]
+                    # out = out.flatten(1)
+                    no_tactile_obs = no_tactile_obs.flatten(1)
+                    tactile = tactile.flatten(1)
 
-                # out = out.flatten(1)
-                no_tactile_obs = no_tactile_obs.flatten(1)
-                tactile = tactile.flatten(1)
-
-                no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
-                tactile_embed = self.tactile_mlp(tactile)
-                out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
+                    no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
+                    tactile_embed = self.tactile_mlp(tactile)
+                    out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
+                else:
+                    out = obs
+                    out = self.actor_cnn(out)
+                    out = out.flatten(1)
 
                 if self.has_rnn:
                     out_in = out
@@ -546,6 +564,9 @@ class A2CBuilder(NetworkBuilder):
                 self.permute_input = self.cnn.get('permute_input', True)
             else:
                 self.has_cnn = False
+
+            self.use_pretrain_tactile = params['use_pretrain_tactile']
+            self.n_stack = params['n_stack']
 
     def build(self, name, **kwargs):
         net = A2CBuilder.Network(self.params, **kwargs)
@@ -995,6 +1016,4 @@ class SACBuilder(NetworkBuilder):
             else:
                 self.is_discrete = False
                 self.is_continuous = False
-
-            self.use_pretrain_tactile = params.get('use_pretrain_tactile', False)
 

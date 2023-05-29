@@ -32,6 +32,9 @@ params:
       regularizer:
         name: None
 
+    use_pretrain_tactile: True
+    n_stack: 4
+
 #    rnn:
 #      name: lstm
 #      units: 256
@@ -115,4 +118,6 @@ params:
             name: default
           regularizer:
             name: None
+        use_pretrain_tactile: True
+        n_stack: 4
 
