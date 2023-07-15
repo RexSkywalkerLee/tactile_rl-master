@@ -227,7 +227,8 @@ class AllegroArmMOAR(VecTask):
         self.asset_files_dict.update(egad_asset_info["asset_dict"])
         self.asset_files_dict.update(polygon_asset_info["asset_dict"])
         self.object_sets = {
-            "0": ['block'], #['block', 'obj7', 'obj9', 'obj10'],
+            # "0": ['block'], #['block', 'obj7', 'obj9', 'obj10'],
+            "0": ['obj3'],
             "1": ['block', 'obj7', 'obj9'],
             "2": ['block', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
             "3": ['block', 'obj0', 'obj2', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
@@ -405,6 +406,11 @@ class AllegroArmMOAR(VecTask):
                                      "link_6.0_fsr", "link_7.0_tip_fsr", "link_9.0_fsr", "link_10.0_fsr",
                                      "link_11.0_tip_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
                                      "link_0.0_fsr", "link_4.0_fsr", "link_8.0_fsr", "link_13.0_fsr"]
+        
+        self.contact_sensor_names = ["link_0.0_fsr", "link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr",
+                                     "link_13.0_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
+                                     "link_4.0_fsr", "link_5.0_fsr", "link_6.0_fsr", "link_7.0_tip_fsr",
+                                     "link_8.0_fsr", "link_9.0_fsr", "link_10.0_fsr", "link_11.0_tip_fsr"]
 
         self.tip_sensor_names = ["link_3.0_tip_fsr",  "link_7.0_tip_fsr",
                                 "link_11.0_tip_fsr", "link_15.0_tip_fsr"]
@@ -604,6 +610,9 @@ class AllegroArmMOAR(VecTask):
         self.debug_qpos = []
 
         self.post_init()
+
+        self.debug_avg = np.zeros((1,16))
+        self.debug_cnt = 0
 
     def get_internal_state(self):
         return self.root_state_tensor[self.object_indices, 3:7]
@@ -1326,10 +1335,15 @@ class AllegroArmMOAR(VecTask):
 
             # random mask out the signal.
             sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
+            #debug_contacts = sensed_contacts.detach().cpu().numpy()
+            # self.debug_cnt += 1
+            # self.debug_avg = self.debug_avg*(self.debug_cnt-1)/self.debug_cnt + debug_contacts/self.debug_cnt
+            # print(self.debug_avg)
             if self.use_disable:
                 sensed_contacts[:, self.disable_sensor_idxes] = 0
             # Do some data augmentation to the contact....
             self.sensed_contacts = sensed_contacts
+            
             if self.viewer:
                 self.debug_contacts = sensed_contacts.detach().cpu().numpy()
 
@@ -2322,7 +2336,7 @@ def compute_hand_reward_new(
 
     # Check env termination conditions, including maximum success number
     resets = torch.where(goal_dist >= fall_dist, torch.ones_like(reset_buf), reset_buf)
-    #resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
+    # resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
     # print(angle_difference)
     resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
     # reward = torch.where(angle_difference > 0.5 * 3.1415926, reward + fall_penalty, reward)
@@ -2438,11 +2452,11 @@ def compute_hand_reward_finger(
     # Looks like this is too hard.
 
     # Check env termination conditions, including maximum success number
-    resets = torch.where(goal_dist >= fall_dist, torch.ones_like(reset_buf), reset_buf)
+    resets = torch.where(goal_dist >= 5 * fall_dist, torch.ones_like(reset_buf), reset_buf)
     #resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
     # print(angle_difference)
-    resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
-    resets = torch.where(deviation < 0, torch.ones_like(reset_buf), resets)
+    # resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
+    # resets = torch.where(deviation < 0, torch.ones_like(reset_buf), resets)
     # reward = torch.where(angle_difference > 0.5 * 3.1415926, reward + fall_penalty, reward)
     if max_consecutive_successes > 0:
         # Reset progress buffer on goal envs if max_corand_floatsnsecutive_successes > 0

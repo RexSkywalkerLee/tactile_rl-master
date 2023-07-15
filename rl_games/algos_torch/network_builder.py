@@ -268,16 +268,16 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.Linear(self.n_stack*16, 64),
                     torch.nn.ELU(),
                     torch.nn.Linear(64, 128),
-                    torch.nn.ELU(),
+                    torch.nn.ELU(), 
                     torch.nn.Linear(128, 256),
                     torch.nn.ELU()
                 )
-
+                    
                 if self.use_pretrain_tactile:
                     pretrain_dict = torch.load('/home/leek/tactile_rl-master/pretrain_network.pth')['net_state_dict']
                     own_dict = self.tactile_mlp.state_dict()
                     for name in own_dict.keys():
-                        pre_name = 'tactile_encoder.' + name
+                        pre_name = 'autoencoder.' + name
                         own_dict[name].copy_(pretrain_dict[pre_name].data)
                     print("Loaded Pretrained Network Weights!")
             ############
