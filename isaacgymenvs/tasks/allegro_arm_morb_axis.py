@@ -610,6 +610,9 @@ class AllegroArmMOAR(VecTask):
 
         self.post_init()
 
+        self.debug_avg = np.zeros((1,16))
+        self.debug_cnt = 0
+
     def get_internal_state(self):
         return self.root_state_tensor[self.object_indices, 3:7]
 
@@ -1332,16 +1335,21 @@ class AllegroArmMOAR(VecTask):
 
             # random mask out the signal.
             sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
+            #debug_contacts = sensed_contacts.detach().cpu().numpy()
+            # self.debug_cnt += 1
+            # self.debug_avg = self.debug_avg*(self.debug_cnt-1)/self.debug_cnt + debug_contacts/self.debug_cnt
+            # print(self.debug_avg)
             if self.use_disable:
                 sensed_contacts[:, self.disable_sensor_idxes] = 0
             # Do some data augmentation to the contact....
             self.sensed_contacts = sensed_contacts
+            
             if self.viewer:
                 self.debug_contacts = sensed_contacts.detach().cpu().numpy()
 
             self.last_obs_buf[:, 45:61] = sensed_contacts
             self.last_obs_buf[:, 61:85] = self.spin_axis.repeat(1, 8)
-
+ 
             # Observation randomization.
             self.last_obs_buf[:, 6:22] += (torch.rand_like(self.last_obs_buf[:, 6:22]) - 0.5) * 2 * 0.06#75
             # we need to do randomization by ourselves....
@@ -2328,7 +2336,7 @@ def compute_hand_reward_new(
 
     # Check env termination conditions, including maximum success number
     resets = torch.where(goal_dist >= fall_dist, torch.ones_like(reset_buf), reset_buf)
-    #resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
+    # resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
     # print(angle_difference)
     resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
     # reward = torch.where(angle_difference > 0.5 * 3.1415926, reward + fall_penalty, reward)
@@ -2445,7 +2453,7 @@ def compute_hand_reward_finger(
 
     # Check env termination conditions, including maximum success number
     resets = torch.where(goal_dist >= fall_dist, torch.ones_like(reset_buf), reset_buf)
-    #resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
+    # resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
     # print(angle_difference)
     resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
     resets = torch.where(deviation < 0, torch.ones_like(reset_buf), resets)
