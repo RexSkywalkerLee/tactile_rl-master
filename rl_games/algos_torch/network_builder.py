@@ -256,7 +256,7 @@ class A2CBuilder(NetworkBuilder):
             ##################
             if self.full_state_obs:
                 self.no_tactile_mlp = torch.nn.Sequential(
-                    torch.nn.Linear(self.n_stack*(45+24), 64),
+                    torch.nn.Linear(self.n_stack*40, 64),
                     torch.nn.ELU(),
                     torch.nn.Linear(64, 128),
                     torch.nn.ELU(),
@@ -265,13 +265,14 @@ class A2CBuilder(NetworkBuilder):
                 )
 
                 self.tactile_mlp= torch.nn.Sequential(
-                    torch.nn.Linear(self.n_stack*16, 64),
+                    torch.nn.Linear(self.n_stack*32, 64),
                     torch.nn.ELU(),
                     torch.nn.Linear(64, 128),
                     torch.nn.ELU(), 
                     torch.nn.Linear(128, 256),
                     torch.nn.ELU()
                 )
+                print(self.tactile_mlp)
                     
                 if self.use_pretrain_tactile:
                     pretrain_dict = torch.load('/workspace/tactile_rl-master/rh_pretrain_network.pth')['net_state_dict']
@@ -424,19 +425,20 @@ class A2CBuilder(NetworkBuilder):
                 # out = obs
                 # out = self.actor_cnn(out)
                 if self.full_state_obs:
-                    no_tactile_obs = torch.zeros((obs.size(0), self.n_stack, 45+24)).to(obs.device)
-                    tactile = torch.zeros((obs.size(0), self.n_stack, 16)).to(obs.device)
+                    no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*40)).to(obs.device)
+                    tactile_obs = torch.zeros((obs.size(0), self.n_stack*32)).to(obs.device)
                     for n in range(self.n_stack):
-                        no_tactile_obs[:,n,0:45] = obs[:,n*(45+16+24):45+n*(45+16+24)]
-                        tactile[:,n,:] = obs[:,45+n*(45+16+24):61+n*(45+16+24)]
-                        no_tactile_obs[:,n,45:69] = obs[:,61+n*(45+16+24):85+n*(45+16+24)]
+                        tactile_obs[:,n*32:16+n*32] = obs[:,6+n*85:22+n*85]
+                        tactile_obs[:,16+n*32:32+n*32] = obs[:,45+n*85:61+n*85]
+                        no_tactile_obs[:,n*40:16+n*40] = obs[:,29+n*85:45+n*85]
+                        no_tactile_obs[:,16+n*40:40+n*40] = obs[:,61+n*85:85+n*85]
 
                     # out = out.flatten(1)
                     no_tactile_obs = no_tactile_obs.flatten(1)
-                    tactile = tactile.flatten(1)
+                    tactile_obs = tactile_obs.flatten(1)
 
                     no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
-                    tactile_embed = self.tactile_mlp(tactile)
+                    tactile_embed = self.tactile_mlp(tactile_obs)
                     out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
                 else:
                     out = obs

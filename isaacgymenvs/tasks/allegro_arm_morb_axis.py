@@ -227,8 +227,7 @@ class AllegroArmMOAR(VecTask):
         self.asset_files_dict.update(egad_asset_info["asset_dict"])
         self.asset_files_dict.update(polygon_asset_info["asset_dict"])
         self.object_sets = {
-            # "0": ['block'], #['block', 'obj7', 'obj9', 'obj10'],
-            "0": ['obj3'],
+            "0": ['block'], #['block', 'obj7', 'obj9', 'obj10'],
             "1": ['block', 'obj7', 'obj9'],
             "2": ['block', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
             "3": ['block', 'obj0', 'obj2', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
@@ -1293,7 +1292,7 @@ class AllegroArmMOAR(VecTask):
 
                 all_contact = self.contact_tensor.reshape(-1, 49, 3).clone()
                 all_contact = torch.norm(all_contact, dim=-1).float()
-                all_contact = torch.where(all_contact >= 20.0, torch.ones_like(all_contact), all_contact / 20.0)
+                #all_contact = torch.where(all_contact >= 20.0, torch.ones_like(all_contact), all_contact / 20.0)
                 self.states_buf[:, obs_end + self.num_actions + 24: obs_end + self.num_actions + 24 + 49] = all_contact
                 self.states_buf[:, obs_end + self.num_actions + 24 + 49:
                                    obs_end + self.num_actions + 24 + 49 + self.num_training_objects] = self.object_one_hot_vector
@@ -1319,12 +1318,13 @@ class AllegroArmMOAR(VecTask):
             contacts = torch.norm(contacts, dim=-1)
             tip_contacts = torch.norm(tip_contacts, dim=-1)
             #print("TIP", contacts)
-            gt_contacts = torch.where(contacts >= 1.0, 1.0, 0.0).clone()
-            tip_contacts = torch.where(tip_contacts >= 0.5, 1.0, 0.0).clone()
+            #gt_contacts = torch.where(contacts >= 1.0, 1.0, 0.0).clone()
+            #tip_contacts = torch.where(tip_contacts >= 0.5, 1.0, 0.0).clone()
+            gt_contacts = contacts.clone()
 
             # we use some randomized threshold.
             # threshold = 0.2 + torch.rand_like(contacts) * self.sensor_thresh
-            contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
+            #contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
 
             latency_samples = torch.rand_like(self.last_contacts)
             latency = torch.where(latency_samples < self.latency, 1, 0)  # with 0.25 probability, the signal is lagged
@@ -1349,7 +1349,7 @@ class AllegroArmMOAR(VecTask):
 
             self.last_obs_buf[:, 45:61] = sensed_contacts
             self.last_obs_buf[:, 61:85] = self.spin_axis.repeat(1, 8)
-
+ 
             # Observation randomization.
             self.last_obs_buf[:, 6:22] += (torch.rand_like(self.last_obs_buf[:, 6:22]) - 0.5) * 2 * 0.06#75
             # we need to do randomization by ourselves....
@@ -2452,11 +2452,11 @@ def compute_hand_reward_finger(
     # Looks like this is too hard.
 
     # Check env termination conditions, including maximum success number
-    resets = torch.where(goal_dist >= 5 * fall_dist, torch.ones_like(reset_buf), reset_buf)
-    #resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
+    resets = torch.where(goal_dist >= fall_dist, torch.ones_like(reset_buf), reset_buf)
+    # resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
     # print(angle_difference)
-    # resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
-    # resets = torch.where(deviation < 0, torch.ones_like(reset_buf), resets)
+    resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
+    resets = torch.where(deviation < 0, torch.ones_like(reset_buf), resets)
     # reward = torch.where(angle_difference > 0.5 * 3.1415926, reward + fall_penalty, reward)
     if max_consecutive_successes > 0:
         # Reset progress buffer on goal envs if max_corand_floatsnsecutive_successes > 0
