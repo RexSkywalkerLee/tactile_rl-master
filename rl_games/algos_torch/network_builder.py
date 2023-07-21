@@ -289,6 +289,9 @@ class A2CBuilder(NetworkBuilder):
                     own_dict['2.weight'].copy_(pretrain_dict['tactile_encoder.2.weight'].data)
                     own_dict['2.bias'].copy_(pretrain_dict['tactile_encoder.2.bias'].data)
                     '''
+
+                if self.use_transfer_net:
+                    self.transfer_net = torch.load('/workspace/tactile_rl-master/r2h_G.pth')
             ############
 
             self.value = torch.nn.Linear(out_size, self.value_size)
@@ -439,6 +442,9 @@ class A2CBuilder(NetworkBuilder):
                     no_tactile_obs = no_tactile_obs.flatten(1)
                     tactile_obs = tactile_obs.flatten(1)
 
+                    if self.use_transfer_net:
+                        tactile_obs = self.transfer_net(tactile_obs)
+
                     no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
                     tactile_embed = self.tactile_mlp(tactile_obs)
                     out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
@@ -576,6 +582,7 @@ class A2CBuilder(NetworkBuilder):
                 self.has_cnn = False
 
             self.use_pretrain_tactile = params['use_pretrain_tactile']
+            self.use_transfer_net = params['use_transfer_net']
             self.n_stack = params['n_stack']
 
     def build(self, name, **kwargs):
