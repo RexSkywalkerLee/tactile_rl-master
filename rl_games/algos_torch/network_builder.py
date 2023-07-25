@@ -275,7 +275,7 @@ class A2CBuilder(NetworkBuilder):
                 print(self.tactile_mlp)
                     
                 if self.use_pretrain_tactile:
-                    pretrain_dict = torch.load('/workspace/tactile_rl-master/hh_merge_delaytask_prenet.pth')['net_state_dict']
+                    pretrain_dict = torch.load('/workspace/tactile_rl-master/rh_merge_delaytask_prenet.pth')['net_state_dict']
                     own_dict = self.tactile_mlp.state_dict()
                     for name in own_dict.keys():
                         #pre_name = 'autoencoder.' + name
@@ -291,7 +291,19 @@ class A2CBuilder(NetworkBuilder):
                     '''
 
                 if self.use_transfer_net:
-                    self.transfer_net = torch.load('/workspace/tactile_rl-master/r2h_G.pth')
+                    self.transfer_net = torch.nn.Sequential(
+                        torch.nn.Linear(128, 128),
+                        torch.nn.ELU(),
+                        torch.nn.Linear(128, 128),
+                        torch.nn.ELU(), 
+                        torch.nn.Linear(128, 128),
+                    )
+                    self.transfer_net.load_state_dict(torch.load('/workspace/tactile_rl-master/r2h_G_net.pth'))
+                for p in self.tactile_mlp.parameters():
+                    p.requires_grad = False
+                if self.use_transfer_net:
+                    for p in self.transfer_net.parameters():
+                        p.requires_grad = False
             ############
 
             self.value = torch.nn.Linear(out_size, self.value_size)
