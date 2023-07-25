@@ -33,7 +33,9 @@ params:
         name: None
 
     use_pretrain_tactile: False
+    pre_net_path: ""
     use_transfer_net: False
+    merge_obs: False
     n_stack: 4
 
 #    rnn:
@@ -120,6 +122,8 @@ params:
           regularizer:
             name: None
         use_pretrain_tactile: False
+        pre_net_path: ""
         use_transfer_net: False
+        merge_obs: False
         n_stack: 4
 

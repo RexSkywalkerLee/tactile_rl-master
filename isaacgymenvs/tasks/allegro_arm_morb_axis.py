@@ -1292,7 +1292,7 @@ class AllegroArmMOAR(VecTask):
 
                 all_contact = self.contact_tensor.reshape(-1, 49, 3).clone()
                 all_contact = torch.norm(all_contact, dim=-1).float()
-                #all_contact = torch.where(all_contact >= 20.0, torch.ones_like(all_contact), all_contact / 20.0)
+                all_contact = torch.where(all_contact >= 20.0, torch.ones_like(all_contact), all_contact / 20.0)
                 self.states_buf[:, obs_end + self.num_actions + 24: obs_end + self.num_actions + 24 + 49] = all_contact
                 self.states_buf[:, obs_end + self.num_actions + 24 + 49:
                                    obs_end + self.num_actions + 24 + 49 + self.num_training_objects] = self.object_one_hot_vector
@@ -1318,13 +1318,12 @@ class AllegroArmMOAR(VecTask):
             contacts = torch.norm(contacts, dim=-1)
             tip_contacts = torch.norm(tip_contacts, dim=-1)
             #print("TIP", contacts)
-            #gt_contacts = torch.where(contacts >= 1.0, 1.0, 0.0).clone()
-            #tip_contacts = torch.where(tip_contacts >= 0.5, 1.0, 0.0).clone()
-            gt_contacts = contacts.clone()
+            gt_contacts = torch.where(contacts >= 1.0, 1.0, 0.0).clone()
+            tip_contacts = torch.where(tip_contacts >= 0.5, 1.0, 0.0).clone()
 
             # we use some randomized threshold.
             # threshold = 0.2 + torch.rand_like(contacts) * self.sensor_thresh
-            #contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
+            contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
 
             latency_samples = torch.rand_like(self.last_contacts)
             latency = torch.where(latency_samples < self.latency, 1, 0)  # with 0.25 probability, the signal is lagged
