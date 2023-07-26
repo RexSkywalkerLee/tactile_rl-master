@@ -49,8 +49,7 @@ env:
   usePrevTarget: False
   dofSpeedScale: 20.0
   actionsMovingAverage: 0.8
-  controlFrequencyInv: 3 # 20 Hz
-  #controlFrequencyInv: 6 # 10 Hz
+  controlFrequencyInv: 6 # 10 Hz
 
   startPositionNoise: 0.01 #0.015
   startRotationNoise: 0.0

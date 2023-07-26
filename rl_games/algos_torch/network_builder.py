@@ -270,7 +270,7 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.ELU()
                 )
 
-                self.tactile_mlp= torch.nn.Sequential(
+                self.pretrain_tactile_mlp = torch.nn.Sequential(
                     torch.nn.Linear(tactile_dim, 64),
                     torch.nn.ELU(),
                     torch.nn.Linear(64, 128),
@@ -278,11 +278,24 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.Linear(128, 256),
                     torch.nn.ELU()
                 )
-                print(self.tactile_mlp)
+                
+                self.learnable_tactile_mlp = torch.nn.Sequential(
+                    torch.nn.Linear(tactile_dim, 64),
+                    torch.nn.ELU(),
+                    torch.nn.Linear(64, 128),
+                    torch.nn.ELU(), 
+                    torch.nn.Linear(128, 256),
+                    torch.nn.ELU()
+                )
+
+                self.fuse_tactile_mlp = torch.nn.Sequential(
+                    torch.nn.Linear(512, 256),
+                    torch.nn.ELU()
+                )
                     
                 if self.use_pretrain_tactile:
                     pretrain_dict = torch.load(self.pre_net_path)['net_state_dict']
-                    own_dict = self.tactile_mlp.state_dict()
+                    own_dict = self.pretrain_tactile_mlp.state_dict()
                     for name in own_dict.keys():
                         pre_name = 'autoencoder.' + name
                         own_dict[name].copy_(pretrain_dict[pre_name].data)
@@ -303,7 +316,7 @@ class A2CBuilder(NetworkBuilder):
                         torch.nn.Linear(128, 128),
                     )
                     self.transfer_net.load_state_dict(torch.load('/workspace/tactile_rl-master/r2h_G_net.pth'))
-                for p in self.tactile_mlp.parameters():
+                for p in self.pretrain_tactile_mlp.parameters():
                     p.requires_grad = False
                 if self.use_transfer_net:
                     for p in self.transfer_net.parameters():
@@ -455,12 +468,16 @@ class A2CBuilder(NetworkBuilder):
                             no_tactile_obs[:,n*40:16+n*40] = obs[:,29+n*85:45+n*85]
                             no_tactile_obs[:,16+n*40:40+n*40] = obs[:,61+n*85:85+n*85]
                     else:
-                        no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*69)).to(obs.device)
+                        no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*56)).to(obs.device)
                         tactile_obs = torch.zeros((obs.size(0), self.n_stack*16)).to(obs.device)
                         for n in range(self.n_stack):
                             tactile_obs[:,n*16:(n+1)*16] = obs[:,45+n*85:61+n*85]
-                            no_tactile_obs[:,n*69:45+n*69] = obs[:,n*85:45+n*85]
-                            no_tactile_obs[:,45+n*69:(n+1)*69] = obs[:,61+n*85:(n+1)*85]
+                            #no_tactile_obs[:,n*69:45+n*69] = obs[:,n*85:45+n*85]
+                            #no_tactile_obs[:,45+n*69:(n+1)*69] = obs[:,61+n*85:(n+1)*85]
+                            no_tactile_obs[:,n*56:16+n*56] = obs[:,6+n*85:22+n*85]
+                            no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*85:45+n*85]
+                            no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*85:(n+1)*85]
+
 
                     # out = out.flatten(1)
                     no_tactile_obs = no_tactile_obs.flatten(1)
@@ -470,7 +487,10 @@ class A2CBuilder(NetworkBuilder):
                         tactile_obs = self.transfer_net(tactile_obs)
 
                     no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
-                    tactile_embed = self.tactile_mlp(tactile_obs)
+                    pretrain_tactile_embed = self.pretrain_tactile_mlp(tactile_obs)
+                    learnable_tactile_embed = self.learnable_tactile_mlp(tactile_obs)
+                    tactile_embed = torch.cat([pretrain_tactile_embed, learnable_tactile_embed], dim=1)
+                    tactile_embed = self.fuse_tactile_mlp(tactile_embed)
                     out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
                 else:
                     out = obs
