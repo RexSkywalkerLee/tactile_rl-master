@@ -227,7 +227,7 @@ class AllegroArmMOAR(VecTask):
         self.asset_files_dict.update(egad_asset_info["asset_dict"])
         self.asset_files_dict.update(polygon_asset_info["asset_dict"])
         self.object_sets = {
-            "0": ['block'], #['block', 'obj7', 'obj9', 'obj10'],
+            "0": ['set_obj1_regular_block'], #['block', 'obj7', 'obj9', 'obj10'],
             "1": ['block', 'obj7', 'obj9'],
             "2": ['block', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
             "3": ['block', 'obj0', 'obj2', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
