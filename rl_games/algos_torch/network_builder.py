@@ -16,6 +16,13 @@ from rl_games.common.layers.recurrent import  GRUWithDones, LSTMWithDones
 def _create_initializer(func, **kwargs):
     return lambda v : func(v, **kwargs)
 
+
+class Flatten(nn.Module):
+    def forward(self, x):
+        N = x.size(0)
+        return x.view(N, -1)
+    
+
 class NetworkBuilder:
     def __init__(self, **kwargs):
         pass
@@ -270,26 +277,48 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.ELU()
                 )
 
-                self.pretrain_tactile_mlp = torch.nn.Sequential(
-                    torch.nn.Linear(tactile_dim, 64),
-                    torch.nn.ELU(),
-                    torch.nn.Linear(64, 128),
-                    torch.nn.ELU(), 
-                    torch.nn.Linear(128, 256),
-                    torch.nn.ELU()
-                )
+                # self.pretrain_tactile_mlp = torch.nn.Sequential(
+                #     torch.nn.Linear(tactile_dim, 64),
+                #     torch.nn.ELU(),
+                #     torch.nn.Linear(64, 128),
+                #     torch.nn.ELU(), 
+                #     torch.nn.Linear(128, 256),
+                #     torch.nn.ELU()
+                # )
                 
-                self.learnable_tactile_mlp = torch.nn.Sequential(
-                    torch.nn.Linear(tactile_dim, 64),
+                # self.learnable_tactile_mlp = torch.nn.Sequential(
+                #     torch.nn.Linear(tactile_dim, 64),
+                #     torch.nn.ELU(),
+                #     torch.nn.Linear(64, 128),
+                #     torch.nn.ELU(), 
+                #     torch.nn.Linear(128, 256),
+                #     torch.nn.ELU()
+                # )
+
+                self.pretrain_tactile_mlp = torch.nn.Sequential(
+                    torch.nn.Conv2d(8, 16, kernel_size=2),
                     torch.nn.ELU(),
-                    torch.nn.Linear(64, 128),
-                    torch.nn.ELU(), 
-                    torch.nn.Linear(128, 256),
-                    torch.nn.ELU()
+                    torch.nn.Conv2d(16, 32, kernel_size=2),
+                    torch.nn.ELU(),
+                    torch.nn.Conv2d(32, 64, kernel_size=2),
+                    torch.nn.ELU(),
+                    Flatten(),
+                    torch.nn.Linear(64, 64),
+                )
+
+                self.learnable_tactile_mlp = torch.nn.Sequential(
+                    torch.nn.Conv2d(8, 16, kernel_size=2),
+                    torch.nn.ELU(),
+                    torch.nn.Conv2d(16, 32, kernel_size=2),
+                    torch.nn.ELU(),
+                    torch.nn.Conv2d(32, 64, kernel_size=2),
+                    torch.nn.ELU(),
+                    Flatten(),
+                    torch.nn.Linear(64, 64),
                 )
 
                 self.fuse_tactile_mlp = torch.nn.Sequential(
-                    torch.nn.Linear(512, 256),
+                    torch.nn.Linear(128, 256),
                     torch.nn.ELU()
                 )
                     
@@ -471,9 +500,9 @@ class A2CBuilder(NetworkBuilder):
                             no_tactile_obs[:,16+n*40:40+n*40] = obs[:,61+n*85:85+n*85]
                     else:
                         no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*56)).to(obs.device)
-                        tactile_obs = torch.zeros((obs.size(0), self.n_stack*16)).to(obs.device)
+                        tactile_obs = torch.zeros((obs.size(0), self.n_stack, 16)).to(obs.device)
                         for n in range(self.n_stack):
-                            tactile_obs[:,n*16:(n+1)*16] = obs[:,45+n*85:61+n*85]
+                            tactile_obs[:,n,:] = obs[:,45+n*85:61+n*85]
                             #no_tactile_obs[:,n*69:45+n*69] = obs[:,n*85:45+n*85]
                             #no_tactile_obs[:,45+n*69:(n+1)*69] = obs[:,61+n*85:(n+1)*85]
                             no_tactile_obs[:,n*56:16+n*56] = obs[:,6+n*85:22+n*85]
@@ -482,7 +511,7 @@ class A2CBuilder(NetworkBuilder):
 
                     # out = out.flatten(1)
                     no_tactile_obs = no_tactile_obs.flatten(1)
-                    tactile_obs = tactile_obs.flatten(1)
+                    tactile_obs = tactile_obs.reshape((obs.size(0), self.n_stack, 4, 4))
 
                     if self.use_transfer_net:
                         tactile_obs = self.transfer_net(tactile_obs)
