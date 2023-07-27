@@ -401,18 +401,25 @@ class AllegroArmMOAR(VecTask):
         print("Obs type:", self.obs_type)
 
         self.palm_name = "palm"
-        self.contact_sensor_names = ["link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr", "link_5.0_fsr",
-                                     "link_6.0_fsr", "link_7.0_tip_fsr", "link_9.0_fsr", "link_10.0_fsr",
-                                     "link_11.0_tip_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
-                                     "link_0.0_fsr", "link_4.0_fsr", "link_8.0_fsr", "link_13.0_fsr"]
+        # self.contact_sensor_names = ["link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr", "link_5.0_fsr",
+        #                              "link_6.0_fsr", "link_7.0_tip_fsr", "link_9.0_fsr", "link_10.0_fsr",
+        #                              "link_11.0_tip_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
+        #                              "link_0.0_fsr", "link_4.0_fsr", "link_8.0_fsr", "link_13.0_fsr"]
         
-        self.contact_sensor_names = ["link_0.0_fsr", "link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr",
-                                     "link_13.0_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
+        # self.contact_sensor_names = ["link_0.0_fsr", "link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr",
+        #                              "link_13.0_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
+        #                              "link_4.0_fsr", "link_5.0_fsr", "link_6.0_fsr", "link_7.0_tip_fsr",
+        #                              "link_8.0_fsr", "link_9.0_fsr", "link_10.0_fsr", "link_11.0_tip_fsr"]
+
+        self.contact_sensor_names = ["link_13.0_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
+                                     "link_0.0_fsr", "link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr",
                                      "link_4.0_fsr", "link_5.0_fsr", "link_6.0_fsr", "link_7.0_tip_fsr",
                                      "link_8.0_fsr", "link_9.0_fsr", "link_10.0_fsr", "link_11.0_tip_fsr"]
 
-        self.tip_sensor_names = ["link_3.0_tip_fsr",  "link_7.0_tip_fsr",
-                                "link_11.0_tip_fsr", "link_15.0_tip_fsr"]
+        # self.tip_sensor_names = ["link_3.0_tip_fsr",  "link_7.0_tip_fsr",
+        #                         "link_11.0_tip_fsr", "link_15.0_tip_fsr"]
+        self.tip_sensor_names = ["link_15.0_tip_fsr", "link_3.0_tip_fsr",  "link_7.0_tip_fsr", "link_11.0_tip_fsr"]
+        
         self.arm_sensor_names = ["link1", "link2", "link3", "link4", "link5", "link6"]
 
         self.n_stack = self.cfg['env'].get('obs_stack', 4)
