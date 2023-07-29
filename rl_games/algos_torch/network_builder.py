@@ -304,6 +304,7 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.ELU(),
                     Flatten(),
                     torch.nn.Linear(64, 64),
+                    torch.nn.ELU(),
                 )
 
                 self.learnable_tactile_mlp = torch.nn.Sequential(
@@ -315,11 +316,12 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.ELU(),
                     Flatten(),
                     torch.nn.Linear(64, 64),
+                    torch.nn.ELU(),
                 )
 
                 self.fuse_tactile_mlp = torch.nn.Sequential(
                     torch.nn.Linear(128, 256),
-                    torch.nn.ELU()
+                    torch.nn.ELU(),
                 )
                     
                 if self.use_pretrain_tactile:
