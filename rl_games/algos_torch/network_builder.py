@@ -304,6 +304,7 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.ELU(),
                     Flatten(),
                     torch.nn.Linear(64, 64),
+                    torch.nn.ELU(),
                 )
 
                 self.learnable_tactile_mlp = torch.nn.Sequential(
@@ -315,18 +316,21 @@ class A2CBuilder(NetworkBuilder):
                     torch.nn.ELU(),
                     Flatten(),
                     torch.nn.Linear(64, 64),
+                    torch.nn.ELU(),
                 )
 
                 self.fuse_tactile_mlp = torch.nn.Sequential(
                     torch.nn.Linear(128, 256),
-                    torch.nn.ELU()
+                    torch.nn.ELU(),
                 )
                     
                 if self.use_pretrain_tactile:
                     pretrain_dict = torch.load(self.pre_net_path)['net_state_dict']
                     own_dict = self.pretrain_tactile_mlp.state_dict()
                     for name in own_dict.keys():
-                        pre_name = 'autoencoder.' + name
+                        #pre_name = 'autoencoder.' + name
+                        pre_name = 'tactile_encoder.' + name
+                        #pre_name = name
                         own_dict[name].copy_(pretrain_dict[pre_name].data)
                     print("Loaded Pretrained Network Weights!")
                     '''
@@ -507,7 +511,6 @@ class A2CBuilder(NetworkBuilder):
                             no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*85:45+n*85]
                             no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*85:(n+1)*85]
 
-
                     # out = out.flatten(1)
                     no_tactile_obs = no_tactile_obs.flatten(1)
                     tactile_obs = tactile_obs.reshape((obs.size(0), self.n_stack, 4, 4))
@@ -655,7 +658,7 @@ class A2CBuilder(NetworkBuilder):
                 self.has_cnn = False
 
             self.use_pretrain_tactile = params['use_pretrain_tactile']
-            self.pre_net_path = params['pre_net_path']
+            self.pre_net_path = params.get('pre_net_path', None)
             self.use_transfer_net = params['use_transfer_net']
             self.merge_obs = params['merge_obs']
             self.n_stack = params['n_stack']
