@@ -34,8 +34,7 @@ params:
 
     use_pretrain_tactile: False
     pre_net_path: ""
-    use_transfer_net: False
-    merge_obs: False
+    tacencoder_type: 'MLP'
     n_stack: 4
 
 #    rnn:
@@ -121,9 +120,4 @@ params:
             name: default
           regularizer:
             name: None
-        use_pretrain_tactile: False
-        pre_net_path: ""
-        use_transfer_net: False
-        merge_obs: False
-        n_stack: 4
 
