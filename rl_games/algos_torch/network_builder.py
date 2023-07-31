@@ -299,7 +299,7 @@ class A2CBuilder(NetworkBuilder):
 
                 elif self.tacencoder_type == 'CNN':
                     self.pretrain_tactile_mlp = torch.nn.Sequential(
-                        torch.nn.Conv2d(8, 16, kernel_size=2),
+                        torch.nn.Conv2d(self.n_stack, 16, kernel_size=2),
                         torch.nn.ELU(),
                         torch.nn.Conv2d(16, 32, kernel_size=2),
                         torch.nn.ELU(),
@@ -312,7 +312,7 @@ class A2CBuilder(NetworkBuilder):
                         torch.nn.ELU(),
                     )
                     self.learnable_tactile_mlp = torch.nn.Sequential(
-                        torch.nn.Conv2d(8, 16, kernel_size=2),
+                        torch.nn.Conv2d(self.n_stack, 16, kernel_size=2),
                         torch.nn.ELU(),
                         torch.nn.Conv2d(16, 32, kernel_size=2),
                         torch.nn.ELU(),
