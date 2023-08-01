@@ -406,19 +406,20 @@ class AllegroArmMOAR(VecTask):
         #                              "link_11.0_tip_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
         #                              "link_0.0_fsr", "link_4.0_fsr", "link_8.0_fsr", "link_13.0_fsr"]
         
-        self.contact_sensor_names = ["link_0.0_fsr", "link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr",
+        self.contact_sensor_names = ["link_8.0_fsr", "link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr",
                                      "link_13.0_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
                                      "link_4.0_fsr", "link_5.0_fsr", "link_6.0_fsr", "link_7.0_tip_fsr",
-                                     "link_8.0_fsr", "link_9.0_fsr", "link_10.0_fsr", "link_11.0_tip_fsr"]
+                                     "link_0.0_fsr", "link_9.0_fsr", "link_10.0_fsr", "link_11.0_tip_fsr"]
+        # link_8.0_fsr and link_0.0_fsr are misplaced but we don't know why!
 
         # self.contact_sensor_names = ["link_13.0_fsr", "link_14.0_fsr", "link_15.0_fsr", "link_15.0_tip_fsr",
         #                              "link_0.0_fsr", "link_1.0_fsr", "link_2.0_fsr", "link_3.0_tip_fsr",
         #                              "link_4.0_fsr", "link_5.0_fsr", "link_6.0_fsr", "link_7.0_tip_fsr",
         #                              "link_8.0_fsr", "link_9.0_fsr", "link_10.0_fsr", "link_11.0_tip_fsr"]
 
-        # self.tip_sensor_names = ["link_3.0_tip_fsr",  "link_7.0_tip_fsr",
-        #                         "link_11.0_tip_fsr", "link_15.0_tip_fsr"]
-        self.tip_sensor_names = ["link_15.0_tip_fsr", "link_3.0_tip_fsr",  "link_7.0_tip_fsr", "link_11.0_tip_fsr"]
+        self.tip_sensor_names = ["link_3.0_tip_fsr",  "link_7.0_tip_fsr",
+                                "link_11.0_tip_fsr", "link_15.0_tip_fsr"]
+        # self.tip_sensor_names = ["link_15.0_tip_fsr", "link_3.0_tip_fsr",  "link_7.0_tip_fsr", "link_11.0_tip_fsr"]
 
         self.arm_sensor_names = ["link1", "link2", "link3", "link4", "link5", "link6"]
 
@@ -1138,6 +1139,8 @@ class AllegroArmMOAR(VecTask):
 
         # self.fingertip_state = self.rigid_body_states[:, self.fingertip_handles][:, :, 0:13]
         self.fingertip_pos = self.rigid_body_states[:, self.fingertip_handles][:, :, 0:3]
+        self.sensor_pos = self.rigid_body_states[:,self.sensor_handle_indices][:,:,0:3]
+        print(self.sensor_pos)
         #print("FP_POS", self.fingertip_pos.shape)
 
         if self.obs_type == "full_no_vel":
