@@ -378,19 +378,20 @@ class A2CBuilder(NetworkBuilder):
                 else:
                     self.sigma = torch.nn.Linear(out_size, actions_num)
 
-            # mlp_init = self.init_factory.create(**self.initializer)
-            # if self.has_cnn or self.tacencoder_type == 'CNN':
-            #     cnn_init = self.init_factory.create(**self.cnn['initializer'])
+            mlp_init = self.init_factory.create(**self.initializer)
+            if self.has_cnn or self.tacencoder_type == 'CNN':
+                # cnn_init = self.init_factory.create(**self.cnn['initializer'])
+                cnn_init = self.init_factory.create('kaiming_normal')
 
-            # for m in self.modules():         
-            #     if isinstance(m, nn.Conv2d) or isinstance(m, nn.Conv1d):
-            #         cnn_init(m.weight)
-            #         if getattr(m, "bias", None) is not None:
-            #             torch.nn.init.zeros_(m.bias)
-            #     if isinstance(m, nn.Linear):
-            #         mlp_init(m.weight)
-            #         if getattr(m, "bias", None) is not None:
-            #             torch.nn.init.zeros_(m.bias)    
+            for m in self.modules():         
+                if isinstance(m, nn.Conv2d) or isinstance(m, nn.Conv1d):
+                    cnn_init(m.weight)
+                    if getattr(m, "bias", None) is not None:
+                        torch.nn.init.zeros_(m.bias)
+                if isinstance(m, nn.Linear):
+                    mlp_init(m.weight)
+                    if getattr(m, "bias", None) is not None:
+                        torch.nn.init.zeros_(m.bias)    
 
             if self.is_continuous:
                 mu_init(self.mu.weight)
