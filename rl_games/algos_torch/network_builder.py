@@ -217,11 +217,13 @@ class A2CBuilder(NetworkBuilder):
             #     input_shape = (256+256,)
             # else:
             #     self.full_state_obs = False
-            if input_shape[0] % 85 == 0:
-                self.full_state_obs = True
+            # if input_shape[0] % 85 == 0:
+            #     self.full_state_obs = True
+            #     input_shape = (256+256,)
+            # else:
+            #     self.full_state_obs = False
+            if self.obs_type == 'ps' or self.obs_type == 'pspos':
                 input_shape = (256+256,)
-            else:
-                self.full_state_obs = False
             ########
 
             mlp_input_shape = self._calc_input_size(input_shape, self.actor_cnn)
@@ -267,7 +269,7 @@ class A2CBuilder(NetworkBuilder):
                 self.critic_mlp = self._build_mlp(**mlp_args)
 
             ##################
-            if self.full_state_obs:
+            if self.obs_type == 'ps':
                 tactile_dim = self.n_stack * 16
                 no_tactile_dim = self.n_stack * 56
                 self.no_tactile_mlp = torch.nn.Sequential(
@@ -299,7 +301,7 @@ class A2CBuilder(NetworkBuilder):
 
                 elif self.tacencoder_type == 'CNN':
                     self.pretrain_tactile_mlp = torch.nn.Sequential(
-                        torch.nn.Conv2d(8, 16, kernel_size=2),
+                        torch.nn.Conv2d(self.n_stack, 16, kernel_size=2),
                         torch.nn.ELU(),
                         torch.nn.Conv2d(16, 32, kernel_size=2),
                         torch.nn.ELU(),
@@ -312,7 +314,7 @@ class A2CBuilder(NetworkBuilder):
                         torch.nn.ELU(),
                     )
                     # self.learnable_tactile_mlp = torch.nn.Sequential(
-                    #     torch.nn.Conv2d(8, 16, kernel_size=2),
+                    #     torch.nn.Conv2d(self.n_stack, 16, kernel_size=2),
                     #     torch.nn.ELU(),
                     #     torch.nn.Conv2d(16, 32, kernel_size=2),
                     #     torch.nn.ELU(),
@@ -349,6 +351,62 @@ class A2CBuilder(NetworkBuilder):
                     own_dict['2.weight'].copy_(pretrain_dict['tactile_encoder.2.weight'].data)
                     own_dict['2.bias'].copy_(pretrain_dict['tactile_encoder.2.bias'].data)
                     '''
+
+                if self.use_pretrain_tactile:
+                    for p in self.pretrain_tactile_mlp.parameters():
+                        p.requires_grad = False
+                print(self.pretrain_tactile_mlp)
+
+            
+            elif self.obs_type == 'pspos':
+                tactile_dim = self.n_stack * 64
+                no_tactile_dim = self.n_stack * 56
+                self.no_tactile_mlp = torch.nn.Sequential(
+                    torch.nn.Linear(no_tactile_dim, 64),
+                    torch.nn.ELU(),
+                    torch.nn.Linear(64, 128),
+                    torch.nn.ELU(),
+                    torch.nn.Linear(128, 256), 
+                    torch.nn.ELU()
+                )
+
+                if self.tacencoder_type == 'MLP':
+                    self.pretrain_tactile_mlp = torch.nn.Sequential(
+                        torch.nn.Linear(tactile_dim, 64),
+                        torch.nn.ELU(),
+                        torch.nn.Linear(64, 128),
+                        torch.nn.ELU(), 
+                        torch.nn.Linear(128, 256),
+                        torch.nn.ELU()
+                    )
+
+                elif self.tacencoder_type == 'CNN':
+                    self.pretrain_tactile_mlp = torch.nn.Sequential(
+                        torch.nn.Conv2d(4*self.n_stack, 16, kernel_size=2),
+                        torch.nn.ELU(),
+                        torch.nn.Conv2d(16, 32, kernel_size=2),
+                        torch.nn.ELU(),
+                        torch.nn.Conv2d(32, 64, kernel_size=2),
+                        torch.nn.ELU(),
+                        Flatten(),
+                        torch.nn.Linear(64, 128),
+                        torch.nn.ELU(),
+                        torch.nn.Linear(128, 256),
+                        torch.nn.ELU(),
+                    )
+
+                elif self.tacencoder_type == 'GNN':
+                    self.pretrain_tactile_mlp = GCN(4*self.n_stack)
+                    
+                if self.use_pretrain_tactile:
+                    pretrain_dict = torch.load(self.pre_net_path)['net_state_dict']
+                    own_dict = self.pretrain_tactile_mlp.state_dict()
+                    for name in own_dict.keys():
+                        #pre_name = 'autoencoder.' + name
+                        pre_name = 'tactile_encoder.' + name
+                        #pre_name = name
+                        own_dict[name].copy_(pretrain_dict[pre_name].data)
+                    print("Loaded Pretrained Network Weights!")
 
                 if self.use_pretrain_tactile:
                     for p in self.pretrain_tactile_mlp.parameters():
@@ -492,7 +550,7 @@ class A2CBuilder(NetworkBuilder):
             else:
                 # out = obs
                 # out = self.actor_cnn(out)
-                if self.full_state_obs:
+                if self.obs_type == 'ps':
                     no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*56)).to(obs.device)
                     tactile_obs = torch.zeros((obs.size(0), self.n_stack, 16)).to(obs.device)
                     for n in range(self.n_stack):
@@ -519,6 +577,33 @@ class A2CBuilder(NetworkBuilder):
                     # learnable_tactile_embed = self.learnable_tactile_mlp(tactile_obs)
                     # tactile_embed = torch.cat([pretrain_tactile_embed, learnable_tactile_embed], dim=1)
                     # tactile_embed = self.fuse_tactile_mlp(tactile_embed)
+                    out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
+
+
+                elif self.obs_type == 'pspos':
+                    no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*56)).to(obs.device)
+                    tactile_obs = torch.zeros((obs.size(0), self.n_stack, 4, 16)).to(obs.device)
+                    for n in range(self.n_stack):
+                        tactile_obs[:,n,0:3,:] = obs[:,85+n*133:(n+1)*133].reshape((-1,3,16))
+                        tactile_obs[:,n,3,:] = obs[:,45+n*133:61+n*133]
+                        no_tactile_obs[:,n*56:16+n*56] = obs[:,6+n*133:22+n*133]
+                        no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*133:45+n*133]
+                        no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*133:85+n*133]
+
+                    no_tactile_obs = no_tactile_obs.flatten(1)
+                    if self.tacencoder_type == 'MLP':
+                        tactile_obs = tactile_obs.flatten(1)
+                    elif self.tacencoder_type == 'CNN':
+                        tactile_obs = tactile_obs.reshape((obs.size(0), self.n_stack, 4, 4, 4))
+                        tactile_obs = tactile_obs[:,:,:,[3,2,0,1],:] #[ring, middle, index, thumb]
+                        tactile_obs = tactile_obs.reshape((obs.size(0), self.n_stack*4, 4, 4))
+                    elif self.tacencoder_type == 'GNN':
+                        tactile_obs = tactile_obs.reshape((obs.size(0), -1, 16))
+                        tactile_obs = tactile_obs.transpose(1,2)
+                    print(tactile_obs[0,0,:])
+
+                    no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
+                    tactile_embed = self.pretrain_tactile_mlp(tactile_obs)
                     out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
                 else:
                     out = obs
@@ -653,6 +738,7 @@ class A2CBuilder(NetworkBuilder):
             else:
                 self.has_cnn = False
 
+            self.obs_type = params.get('obs_type', None)
             self.use_pretrain_tactile = params.get('use_pretrain_tactile', False)
             self.pre_net_path = params.get('pre_net_path', None)
             self.tacencoder_type = params.get('tacencoder_type', None)

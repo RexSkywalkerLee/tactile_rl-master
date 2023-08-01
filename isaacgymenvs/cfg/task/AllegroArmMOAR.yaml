@@ -78,7 +78,8 @@ env:
   fallPenalty: -50.0
 
   objectType: "block" # can be block, egg or pen
-  observationType: "partial_stack" # can be "no_vel", "full_state"
+  # observationType: "partial_stack" # can be "no_vel", "full_state"
+  observationType: "ps_w_sensorpos"
   asymmetric_observations: True
   successTolerance: 0.1
   printNumSuccesses: False
