@@ -21,7 +21,7 @@ def _create_initializer(func, **kwargs):
 class Flatten(nn.Module):
     def forward(self, x):
         N = x.size(0)
-        return x.view(N, -1)
+        return x.reshape(N, -1)
     
 
 class NetworkBuilder:
@@ -271,7 +271,7 @@ class A2CBuilder(NetworkBuilder):
             ##################
             if self.obs_type == 'ps':
                 tactile_dim = self.n_stack * 16
-                no_tactile_dim = self.n_stack * 56
+                no_tactile_dim = self.n_stack * 69
                 self.no_tactile_mlp = torch.nn.Sequential(
                     torch.nn.Linear(no_tactile_dim, 64),
                     torch.nn.ELU(),
@@ -360,7 +360,7 @@ class A2CBuilder(NetworkBuilder):
             
             elif self.obs_type == 'pspos':
                 tactile_dim = self.n_stack * 64
-                no_tactile_dim = self.n_stack * 56
+                no_tactile_dim = self.n_stack * 69
                 self.no_tactile_mlp = torch.nn.Sequential(
                     torch.nn.Linear(no_tactile_dim, 64),
                     torch.nn.ELU(),
@@ -474,10 +474,10 @@ class A2CBuilder(NetworkBuilder):
             if self.separate:
                 a_out = c_out = obs
                 a_out = self.actor_cnn(a_out)
-                a_out = a_out.contiguous().view(a_out.size(0), -1)
+                a_out = a_out.contiguous().reshape(a_out.size(0), -1)
 
                 c_out = self.critic_cnn(c_out)
-                c_out = c_out.contiguous().view(c_out.size(0), -1)                    
+                c_out = c_out.contiguous().reshape(c_out.size(0), -1)                    
 
                 if self.has_rnn:
                     if not self.is_rnn_before_mlp:
@@ -550,23 +550,27 @@ class A2CBuilder(NetworkBuilder):
             else:
                 # out = obs
                 # out = self.actor_cnn(out)
+                batch_size = obs.size(0)
                 if self.obs_type == 'ps':
-                    no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*56)).to(obs.device)
-                    tactile_obs = torch.zeros((obs.size(0), self.n_stack, 16)).to(obs.device)
-                    for n in range(self.n_stack):
-                        tactile_obs[:,n,:] = obs[:,45+n*85:61+n*85]
-                        #no_tactile_obs[:,n*69:45+n*69] = obs[:,n*85:45+n*85]
-                        #no_tactile_obs[:,45+n*69:(n+1)*69] = obs[:,61+n*85:(n+1)*85]
-                        no_tactile_obs[:,n*56:16+n*56] = obs[:,6+n*85:22+n*85]
-                        no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*85:45+n*85]
-                        no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*85:(n+1)*85]
+                    obs = obs.reshape((batch_size, self.n_stack, -1))
+                    # no_tactile_obs = torch.zeros((batch_size, self.n_stack*56)).to(obs.device)
+                    # tactile_obs = torch.zeros((batch_size, self.n_stack, 16)).to(obs.device)
+                    # for n in range(self.n_stack):
+                    #     tactile_obs[:,n,:] = obs[:,45+n*85:61+n*85]
+                    #     #no_tactile_obs[:,n*69:45+n*69] = obs[:,n*85:45+n*85]
+                    #     #no_tactile_obs[:,45+n*69:(n+1)*69] = obs[:,61+n*85:(n+1)*85]
+                    #     no_tactile_obs[:,n*56:16+n*56] = obs[:,6+n*85:22+n*85]
+                    #     no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*85:45+n*85]
+                    #     no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*85:(n+1)*85]
+                    no_tactile_obs = obs[:,:,0:69]
+                    tactile_obs = obs[:,:,69:85]
 
                     # out = out.flatten(1)
-                    no_tactile_obs = no_tactile_obs.flatten(1)
+                    no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     if self.tacencoder_type == 'MLP':
-                        tactile_obs = tactile_obs.flatten(1)
+                        tactile_obs = tactile_obs.reshape((batch_size,-1))
                     elif self.tacencoder_type == 'CNN':
-                        tactile_obs = tactile_obs.reshape((obs.size(0), self.n_stack, 4, 4))
+                        tactile_obs = tactile_obs.reshape((batch_size,self.n_stack,4,4))
                         tactile_obs = tactile_obs[:,:,[3,2,0,1],:] #[ring, middle, index, thumb]
                     elif self.tacencoder_type == 'GNN':
                         tactile_obs = tactile_obs.transpose(1,2)
@@ -579,28 +583,30 @@ class A2CBuilder(NetworkBuilder):
                     # tactile_embed = self.fuse_tactile_mlp(tactile_embed)
                     out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
 
-
                 elif self.obs_type == 'pspos':
-                    no_tactile_obs = torch.zeros((obs.size(0), self.n_stack*56)).to(obs.device)
-                    tactile_obs = torch.zeros((obs.size(0), self.n_stack, 4, 16)).to(obs.device)
-                    for n in range(self.n_stack):
-                        tactile_obs[:,n,0:3,:] = obs[:,85+n*133:(n+1)*133].reshape((-1,3,16))
-                        tactile_obs[:,n,3,:] = obs[:,45+n*133:61+n*133]
-                        no_tactile_obs[:,n*56:16+n*56] = obs[:,6+n*133:22+n*133]
-                        no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*133:45+n*133]
-                        no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*133:85+n*133]
+                    obs = obs.reshape((batch_size, self.n_stack, -1))
+                    # no_tactile_obs = torch.zeros((batch_size, self.n_stack*56)).to(obs.device)
+                    # tactile_obs = torch.zeros((batch_size, self.n_stack, 4, 16)).to(obs.device)
+                    # for n in range(self.n_stack):
+                    #     tactile_obs[:,n,0:3,:] = obs[:,85+n*133:(n+1)*133].reshape((-1,3,16))
+                    #     tactile_obs[:,n,3,:] = obs[:,45+n*133:61+n*133]
+                    #     no_tactile_obs[:,n*56:16+n*56] = obs[:,6+n*133:22+n*133]
+                    #     no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*133:45+n*133]
+                    #     no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*133:85+n*133]
+                    no_tactile_obs = obs[:,:,0:69]
+                    tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
 
-                    no_tactile_obs = no_tactile_obs.flatten(1)
+                    no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     if self.tacencoder_type == 'MLP':
-                        tactile_obs = tactile_obs.flatten(1)
+                        tactile_obs = tactile_obs.reshape((batch_size,-1))
+                        print(tactile_obs[1,:])
                     elif self.tacencoder_type == 'CNN':
-                        tactile_obs = tactile_obs.reshape((obs.size(0), self.n_stack, 4, 4, 4))
+                        tactile_obs = tactile_obs.reshape((batch_size, self.n_stack,4,4,4))
                         tactile_obs = tactile_obs[:,:,:,[3,2,0,1],:] #[ring, middle, index, thumb]
-                        tactile_obs = tactile_obs.reshape((obs.size(0), self.n_stack*4, 4, 4))
+                        tactile_obs = tactile_obs.reshape((batch_size, self.n_stack*4,4,4))
                     elif self.tacencoder_type == 'GNN':
-                        tactile_obs = tactile_obs.reshape((obs.size(0), -1, 16))
+                        tactile_obs = tactile_obs.reshape((batch_size,-1,16))
                         tactile_obs = tactile_obs.transpose(1,2)
-                    print(tactile_obs[0,0,:])
 
                     no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
                     tactile_embed = self.pretrain_tactile_mlp(tactile_obs)
@@ -1080,7 +1086,7 @@ class DoubleQCritic(NetworkBuilder.BaseNetwork):
         self.Q2 = nn.Sequential(*list(self.Q2.children()), nn.Linear(last_layer, output_dim))
 
     def forward(self, obs, action):
-        assert obs.size(0) == action.size(0)
+        assert batch_size == action.size(0)
 
         obs_action = torch.cat([obs, action], dim=-1)
         q1 = self.Q1(obs_action)

@@ -1361,8 +1361,13 @@ class AllegroArmMOAR(VecTask):
             if self.viewer:
                 self.debug_contacts = sensed_contacts.detach().cpu().numpy()
 
-            self.last_obs_buf[:, 45:61] = sensed_contacts
-            self.last_obs_buf[:, 61:85] = self.spin_axis.repeat(1, 8)
+            #################################
+            # Move tactile obs to the end of tensor for easier separation
+            # self.last_obs_buf[:, 45:61] = sensed_contacts
+            # self.last_obs_buf[:, 61:85] = self.spin_axis.repeat(1, 8)
+            self.last_obs_buf[:, 69:85] = sensed_contacts
+            self.last_obs_buf[:, 45:69] = self.spin_axis.repeat(1, 8)
+            #################################
  
             # Observation randomization.
             self.last_obs_buf[:, 6:22] += (torch.rand_like(self.last_obs_buf[:, 6:22]) - 0.5) * 2 * 0.06#75
@@ -1472,12 +1477,17 @@ class AllegroArmMOAR(VecTask):
             if self.viewer:
                 self.debug_contacts = sensed_contacts.detach().cpu().numpy()
 
-            self.last_obs_buf[:, 45:61] = sensed_contacts
-            self.last_obs_buf[:, 61:85] = self.spin_axis.repeat(1, 8)
+             #################################
+            # Move tactile obs to the end of tensor for easier separation
+            # self.last_obs_buf[:, 45:61] = sensed_contacts
+            # self.last_obs_buf[:, 61:85] = self.spin_axis.repeat(1, 8)
+            self.last_obs_buf[:, 69:85] = sensed_contacts
+            self.last_obs_buf[:, 45:69] = self.spin_axis.repeat(1, 8)
 
             # Add sensor positions (x,y,z) to observation buffer
-            sensor_pos = self.rigid_body_states[:,self.sensor_handle_indices][:,:,0:3].reshape(-1, 16*3)
+            sensor_pos = self.rigid_body_states[:,self.sensor_handle_indices][:,:,0:3].transpose(1,2).reshape((-1, 48))
             self.last_obs_buf[:, 85:133] = sensor_pos
+            #################################
  
             # Observation randomization.
             self.last_obs_buf[:, 6:22] += (torch.rand_like(self.last_obs_buf[:, 6:22]) - 0.5) * 2 * 0.06#75
