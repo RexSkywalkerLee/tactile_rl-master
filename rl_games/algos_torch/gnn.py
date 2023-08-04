@@ -11,7 +11,8 @@ class GCN(torch.nn.Module):
         self.conv3 = GCNConv(64, 64)
         self.conv4 = GCNConv(64, 128)
         self.pool = aggr.MaxAggregation()
-        self.fc = nn.Linear(128, 256)
+        # self.aggr = aggr.MLPAggregation(16, 128, 16, num_layers=1)
+        self.fc = nn.Linear(128, 32)
 
         self.edge_idx = torch.tensor([[0,0,0,0,1,1,2,2,3,4,4,4,4,5,5,5,6,6,7,8,8,8,8,9,9,10,10,11,12,12,12,13,13,14,14,15],
                                       [1,4,5,8,0,2,1,3,2,0,5,8,12,0,4,6,5,7,6,0,4,9,12,8,10,9,11,10,4,8,13,12,14,13,15,14]], dtype=torch.int64)
@@ -23,6 +24,7 @@ class GCN(torch.nn.Module):
         x = self.conv3(x, edge_idx).relu()
         x = self.conv4(x, edge_idx).relu()
         x = self.pool(x).squeeze()
+        # x = self.aggr(x)
         x = self.fc(x)
         x = F.elu(x)
 
