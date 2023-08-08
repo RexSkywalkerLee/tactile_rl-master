@@ -18,6 +18,14 @@ def _create_initializer(func, **kwargs):
     return lambda v : func(v, **kwargs)
 
 
+def ComputeNorm(input, axis=0, epsilon=1e-12):
+    mean = input.mean(axis)
+    var = input.var(axis)
+    output = (input - mean) / torch.sqrt(var + epsilon)
+    output = torch.clamp(output, min=-5.0, max=5.0)
+    return output
+
+
 class Flatten(nn.Module):
     def forward(self, x):
         N = x.size(0)
@@ -587,6 +595,7 @@ class A2CBuilder(NetworkBuilder):
 
                 elif self.obs_type == 'pspos':
                     obs = obs.reshape((batch_size, self.n_stack, -1))
+                    # print(obs[1,:])
                     # no_tactile_obs = torch.zeros((batch_size, self.n_stack*56)).to(obs.device)
                     # tactile_obs = torch.zeros((batch_size, self.n_stack, 4, 16)).to(obs.device)
                     # for n in range(self.n_stack):
@@ -596,7 +605,9 @@ class A2CBuilder(NetworkBuilder):
                     #     no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*133:45+n*133]
                     #     no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*133:85+n*133]
                     no_tactile_obs = obs[:,:,0:69]
+                    no_tactile_obs[:,:,0:45] = ComputeNorm(no_tactile_obs[:,:,0:45])
                     tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
+                    tactile_obs[:,:,1:,:] = ComputeNorm(tactile_obs[:,:,1:,:])
 
                     no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     if self.tacencoder_type == 'MLP':
@@ -611,8 +622,11 @@ class A2CBuilder(NetworkBuilder):
 
                     # no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
                     tactile_embed = self.pretrain_tactile_mlp(tactile_obs)
+                    tactile_embed = ComputeNorm(tactile_embed)
                     # out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
                     out = torch.cat([no_tactile_obs, tactile_embed], dim=1)
+                    print(out[1])
+                    
                 else:
                     out = obs
                     out = self.actor_cnn(out)

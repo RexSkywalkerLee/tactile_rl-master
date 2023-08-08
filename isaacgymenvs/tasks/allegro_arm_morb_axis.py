@@ -227,7 +227,7 @@ class AllegroArmMOAR(VecTask):
         self.asset_files_dict.update(egad_asset_info["asset_dict"])
         self.asset_files_dict.update(polygon_asset_info["asset_dict"])
         self.object_sets = {
-            "0": ['set_obj1_regular_block'], #['block', 'obj7', 'obj9', 'obj10'],
+            "0": ['block'], #['block', 'obj7', 'obj9', 'obj10'],
             "1": ['block', 'obj7', 'obj9'],
             "2": ['block', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
             "3": ['block', 'obj0', 'obj2', 'obj3', 'obj4', 'obj6', 'obj7', 'obj8', 'obj9', 'obj10'],
@@ -1454,17 +1454,23 @@ class AllegroArmMOAR(VecTask):
 
             # we use some randomized threshold.
             # threshold = 0.2 + torch.rand_like(contacts) * self.sensor_thresh
-            contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
+            # contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
+            #################################
+            # Using (-1,1) instead of (0,1)
+            contacts = torch.where(contacts >= self.contact_thresh, 1.0, -1.0)
 
-            latency_samples = torch.rand_like(self.last_contacts)
-            latency = torch.where(latency_samples < self.latency, 1, 0)  # with 0.25 probability, the signal is lagged
-            self.last_contacts = self.last_contacts * latency + contacts * (1 - latency)
+            # Also removing randomlization for the moment...
+            # latency_samples = torch.rand_like(self.last_contacts)
+            # latency = torch.where(latency_samples < self.latency, 1, 0)  # with 0.25 probability, the signal is lagged
+            # self.last_contacts = self.last_contacts * latency + contacts * (1 - latency)
 
-            mask = torch.rand_like(self.last_contacts)
-            mask = torch.where(mask < self.sensor_noise, 0.0, 1.0)
+            # mask = torch.rand_like(self.last_contacts)
+            # mask = torch.where(mask < self.sensor_noise, 0.0, 1.0)
 
             # random mask out the signal.
-            sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
+            # sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
+            sensed_contacts = contacts
+            ################################
             #debug_contacts = sensed_contacts.detach().cpu().numpy()
             # self.debug_cnt += 1
             # self.debug_avg = self.debug_avg*(self.debug_cnt-1)/self.debug_cnt + debug_contacts/self.debug_cnt
@@ -2591,7 +2597,7 @@ def compute_hand_reward_finger(
     # Looks like this is too hard.
 
     # Check env termination conditions, including maximum success number
-    resets = torch.where(goal_dist >= fall_dist, torch.ones_like(reset_buf), reset_buf)
+    resets = torch.where(goal_dist >= 10 * fall_dist, torch.ones_like(reset_buf), reset_buf)
     # resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
     # print(angle_difference)
     resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
