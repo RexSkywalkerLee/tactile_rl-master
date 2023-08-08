@@ -9,4 +9,4 @@ train.params.network.use_pretrain_tactile=True train.params.config.central_value
 
 python3 isaacgymenvs/train.py task=AllegroArmMOAR headless=True seed=42 experiment=RgBaselineC4_1 wandb_activate=True train.params.network.use_pretrain_tactile=True train.params.config.central_value_config.network.use_pretrain_tactile=True
 
-python3 isaacgymenvs/train.py test=True task=AllegroArmMOAR headless=False seed=42 experiment=test wandb_activate=False train.params.network.use_pretrain_tactile=False train.params.config.central_value_config.network.use_pretrain_tactile=False task.env.numEnvs=27 checkpoint=baseline.pth
+python3 isaacgymenvs/train.py test=True task=AllegroArmMOAR headless=True seed=42 experiment=test wandb_activate=False train.params.network.use_pretrain_tactile=False task.env.numEnvs=27
