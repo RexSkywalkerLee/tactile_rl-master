@@ -595,7 +595,6 @@ class A2CBuilder(NetworkBuilder):
 
                 elif self.obs_type == 'pspos':
                     obs = obs.reshape((batch_size, self.n_stack, -1))
-                    # print(obs[1,:])
                     # no_tactile_obs = torch.zeros((batch_size, self.n_stack*56)).to(obs.device)
                     # tactile_obs = torch.zeros((batch_size, self.n_stack, 4, 16)).to(obs.device)
                     # for n in range(self.n_stack):
@@ -608,6 +607,10 @@ class A2CBuilder(NetworkBuilder):
                     no_tactile_obs[:,:,0:45] = ComputeNorm(no_tactile_obs[:,:,0:45])
                     tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
                     tactile_obs[:,:,1:,:] = ComputeNorm(tactile_obs[:,:,1:,:])
+                    tactile_obs[:,:,1:,0] = 0.0
+                    tactile_obs[:,:,1:,4] = 0.0
+                    tactile_obs[:,:,1:,8] = 0.0
+                    tactile_obs[:,:,1:,12] = 0.0
 
                     no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     if self.tacencoder_type == 'MLP':
@@ -625,7 +628,6 @@ class A2CBuilder(NetworkBuilder):
                     tactile_embed = ComputeNorm(tactile_embed)
                     # out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
                     out = torch.cat([no_tactile_obs, tactile_embed], dim=1)
-                    print(out[1])
                     
                 else:
                     out = obs
