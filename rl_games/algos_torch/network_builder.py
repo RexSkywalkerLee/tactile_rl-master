@@ -362,7 +362,7 @@ class A2CBuilder(NetworkBuilder):
 
                 if self.use_pretrain_tactile:
                     for p in self.pretrain_tactile_mlp.parameters():
-                        p.requires_grad = False
+                        p.requires_grad = False 
                 print(self.pretrain_tactile_mlp)
 
             
@@ -407,13 +407,14 @@ class A2CBuilder(NetworkBuilder):
                     self.pretrain_tactile_mlp = GCN(4*self.n_stack)
                     
                 if self.use_pretrain_tactile:
-                    pretrain_dict = torch.load(self.pre_net_path)['net_state_dict']
-                    own_dict = self.pretrain_tactile_mlp.state_dict()
-                    for name in own_dict.keys():
-                        #pre_name = 'autoencoder.' + name
-                        pre_name = 'tactile_encoder.' + name
-                        #pre_name = name
-                        own_dict[name].copy_(pretrain_dict[pre_name].data)
+                    # pretrain_dict = torch.load(self.pre_net_path)['net_state_dict']
+                    # own_dict = self.pretrain_tactile_mlp.state_dict()
+                    # for name in own_dict.keys():
+                        # #pre_name = 'autoencoder.' + name
+                        # #pre_name = 'tactile_encoder.' + name
+                        # pre_name = name
+                        # own_dict[name].copy_(pretrain_dict[pre_name].data)
+                    self.pretrain_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
                     print("Loaded Pretrained Network Weights!")
 
                 if self.use_pretrain_tactile:
@@ -594,7 +595,6 @@ class A2CBuilder(NetworkBuilder):
 
                 elif self.obs_type == 'pspos':
                     obs = obs.reshape((batch_size, self.n_stack, -1))
-                    # print(obs[1,:])
                     # no_tactile_obs = torch.zeros((batch_size, self.n_stack*56)).to(obs.device)
                     # tactile_obs = torch.zeros((batch_size, self.n_stack, 4, 16)).to(obs.device)
                     # for n in range(self.n_stack):
@@ -607,6 +607,10 @@ class A2CBuilder(NetworkBuilder):
                     no_tactile_obs[:,:,0:45] = ComputeNorm(no_tactile_obs[:,:,0:45])
                     tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
                     tactile_obs[:,:,1:,:] = ComputeNorm(tactile_obs[:,:,1:,:])
+                    tactile_obs[:,:,1:,0] = 0.0
+                    tactile_obs[:,:,1:,4] = 0.0
+                    tactile_obs[:,:,1:,8] = 0.0
+                    tactile_obs[:,:,1:,12] = 0.0
 
                     no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     if self.tacencoder_type == 'MLP':
