@@ -624,7 +624,6 @@ class A2CBuilder(NetworkBuilder):
                     tactile_embed = ComputeNorm(tactile_embed)
                     # out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
                     out = torch.cat([no_tactile_obs, tactile_embed], dim=1)
-                    print(out[1])
                     
                 else:
                     out = obs
