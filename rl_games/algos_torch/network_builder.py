@@ -11,6 +11,7 @@ import numpy as np
 from rl_games.algos_torch.d2rl import D2RLNet
 from rl_games.algos_torch.sac_helper import  SquashedNormal
 from rl_games.common.layers.recurrent import  GRUWithDones, LSTMWithDones
+from rl_games.algos_torch.running_mean_std import RunningMeanStd
 from rl_games.algos_torch.gnn import GCN
 
 
@@ -421,6 +422,9 @@ class A2CBuilder(NetworkBuilder):
                     for p in self.pretrain_tactile_mlp.parameters():
                         p.requires_grad = False
                 print(self.pretrain_tactile_mlp)
+                self.nontactile_running_norm = RunningMeanStd((self.n_stack*69,))
+                self.sensorpos_running_norm = RunningMeanStd((self.n_stack,3,16))
+                self.bn = torch.nn.BatchNorm1d(32)
             ############
 
             self.value = torch.nn.Linear(out_size, self.value_size)
@@ -604,15 +608,23 @@ class A2CBuilder(NetworkBuilder):
                     #     no_tactile_obs[:,16+n*56:32+n*56] = obs[:,29+n*133:45+n*133]
                     #     no_tactile_obs[:,32+n*56:(n+1)*56] = obs[:,61+n*133:85+n*133]
                     no_tactile_obs = obs[:,:,0:69]
-                    no_tactile_obs[:,:,0:45] = ComputeNorm(no_tactile_obs[:,:,0:45])
                     tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
-                    tactile_obs[:,:,1:,:] = ComputeNorm(tactile_obs[:,:,1:,:])
+
+                    # no_tactile_obs[:,:,0:45] = ComputeNorm(no_tactile_obs[:,:,0:45])
+                    # tactile_obs[:,:,1:,:] = ComputeNorm(tactile_obs[:,:,1:,:])
+                    # tactile_obs[:,:,1:,0] = 0.0
+                    # tactile_obs[:,:,1:,4] = 0.0
+                    # tactile_obs[:,:,1:,8] = 0.0
+                    # tactile_obs[:,:,1:,12] = 0.0
+
+                    no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
+                    no_tactile_obs = self.nontactile_running_norm(no_tactile_obs)
+                    tactile_obs[:,:,1:,:] = self.sensorpos_running_norm(tactile_obs[:,:,1:,:])
                     tactile_obs[:,:,1:,0] = 0.0
                     tactile_obs[:,:,1:,4] = 0.0
                     tactile_obs[:,:,1:,8] = 0.0
                     tactile_obs[:,:,1:,12] = 0.0
 
-                    no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     if self.tacencoder_type == 'MLP':
                         tactile_obs = tactile_obs.reshape((batch_size,-1))
                     elif self.tacencoder_type == 'CNN':
@@ -623,10 +635,9 @@ class A2CBuilder(NetworkBuilder):
                         tactile_obs = tactile_obs.reshape((batch_size,-1,16))
                         tactile_obs = tactile_obs.transpose(1,2)
 
-                    # no_tactile_embed = self.no_tactile_mlp(no_tactile_obs)
                     tactile_embed = self.pretrain_tactile_mlp(tactile_obs)
-                    tactile_embed = ComputeNorm(tactile_embed)
-                    # out = torch.cat([no_tactile_embed, tactile_embed], dim=1)
+                    # tactile_embed = ComputeNorm(tactile_embed)
+                    tactile_embed = self.bn(tactile_embed)
                     out = torch.cat([no_tactile_obs, tactile_embed], dim=1)
                     
                 else:
