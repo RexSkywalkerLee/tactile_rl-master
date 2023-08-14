@@ -1,0 +1,37 @@
+params:
+  algo:
+    name: a2c_continuous
+
+  model:
+    name: continuous_a2c_logstd
+
+  network:
+    name: actor_critic
+    separate: False
+
+    space:
+      continuous:
+        mu_activation: None
+        sigma_activation: None
+        mu_init:
+          name: default
+        sigma_init:
+          name: const_initializer
+          val: 0
+        fixed_sigma: True
+
+    mlp:
+      units: [512, 256, 256]
+      activation: elu
+      d2rl: False
+
+      initializer:
+        name: default
+      regularizer:
+        name: None
+
+    obs_type: 'pspos'
+    use_pretrain_tactile: False
+    pre_net_path: ""
+    tacencoder_type: 'MLP'
+    n_stack: 4
