@@ -1,0 +1,7 @@
+runs/
+wandb/
+assets/
+.vscode/
+__pycache__/
+action_seq.pkl
+script.sh
