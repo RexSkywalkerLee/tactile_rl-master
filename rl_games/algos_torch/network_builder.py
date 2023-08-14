@@ -412,23 +412,6 @@ class A2CBuilder(NetworkBuilder):
                     self.pretrain_tactile_mlp = GCN(4*self.n_stack)
                     self.learnable_tactile_mlp = GCN(4*self.n_stack)
                     
-                if self.use_pretrain_tactile:
-                    # pretrain_dict = torch.load(self.pre_net_path)['net_state_dict']
-                    # own_dict = self.pretrain_tactile_mlp.state_dict()
-                    # for name in own_dict.keys():
-                        # #pre_name = 'autoencoder.' + name
-                        # #pre_name = 'tactile_encoder.' + name
-                        # pre_name = name
-                        # own_dict[name].copy_(pretrain_dict[pre_name].data)
-                    self.pretrain_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
-                    self.learnable_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
-                    print("Loaded Pretrained Network Weights!")
-
-                    for p in self.pretrain_tactile_mlp.parameters():
-                        p.requires_grad = False
-                    for p in self.learnable_tactile_mlp.parameters():
-                        p.requires_grad = True
-                print(self.pretrain_tactile_mlp)
                 self.nontactile_running_norm = RunningMeanStd((self.n_stack*69,))
                 # self.sensorpos_running_norm = RunningMeanStd((self.n_stack,3,16))
                 self.bn = torch.nn.BatchNorm1d(self.n_stack*69+32)
@@ -461,7 +444,7 @@ class A2CBuilder(NetworkBuilder):
                 # cnn_init = self.init_factory.create(**self.cnn['initializer'])
                 cnn_init = self.init_factory.create('kaiming_normal')
 
-            for m in self.modules():         
+            for m in self.modules():
                 if isinstance(m, nn.Conv2d) or isinstance(m, nn.Conv1d):
                     cnn_init(m.weight)
                     if getattr(m, "bias", None) is not None:
@@ -477,6 +460,26 @@ class A2CBuilder(NetworkBuilder):
                     sigma_init(self.sigma)
                 else:
                     sigma_init(self.sigma.weight)  
+
+            if self.obs_type=='pspos' and self.use_pretrain_tactile:
+                # pretrain_dict = torch.load(self.pre_net_path)['net_state_dict']
+                # own_dict = self.pretrain_tactile_mlp.state_dict()
+                # for name in own_dict.keys():
+                    # #pre_name = 'autoencoder.' + name
+                    # #pre_name = 'tactile_encoder.' + name
+                    # pre_name = name
+                    # own_dict[name].copy_(pretrain_dict[pre_name].data)
+                self.pretrain_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
+                # self.learnable_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
+                print("Loaded Pretrained Network Weights!")
+
+                for p in self.pretrain_tactile_mlp.parameters():
+                    p.requires_grad = False
+                for p in self.learnable_tactile_mlp.parameters():
+                    p.requires_grad = True
+
+                # print(self.pretrain_tactile_mlp[0].weight)
+                # print(self.learnable_tactile_mlp[0].weight)
 
         def forward(self, obs_dict):
             obs = obs_dict['obs']
