@@ -2597,11 +2597,11 @@ def compute_hand_reward_finger(
     # Looks like this is too hard.
 
     # Check env termination conditions, including maximum success number
-    resets = torch.where(goal_dist >= 10 * fall_dist, torch.ones_like(reset_buf), reset_buf)
+    resets = torch.where(goal_dist >= fall_dist, torch.ones_like(reset_buf), reset_buf)
     # resets = torch.where(angle_difference > 0.6 * 3.1415926, torch.ones_like(reset_buf), resets)
     # print(angle_difference)
-    # resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
-    # resets = torch.where(deviation < 0, torch.ones_like(reset_buf), resets)
+    resets = torch.where(angle_difference > 0.4 * 3.1415926, torch.ones_like(reset_buf), resets)
+    resets = torch.where(deviation < 0, torch.ones_like(reset_buf), resets)
     # reward = torch.where(angle_difference > 0.5 * 3.1415926, reward + fall_penalty, reward)
     if max_consecutive_successes > 0:
         # Reset progress buffer on goal envs if max_corand_floatsnsecutive_successes > 0
