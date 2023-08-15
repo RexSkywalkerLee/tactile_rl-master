@@ -470,13 +470,23 @@ class A2CBuilder(NetworkBuilder):
                     # pre_name = name
                     # own_dict[name].copy_(pretrain_dict[pre_name].data)
                 self.pretrain_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
-                # self.learnable_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
+                self.learnable_tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
                 print("Loaded Pretrained Network Weights!")
-
-                for p in self.pretrain_tactile_mlp.parameters():
-                    p.requires_grad = False
-                for p in self.learnable_tactile_mlp.parameters():
-                    p.requires_grad = True
+                if self.finetune=='ft':
+                    for p in self.pretrain_tactile_mlp.parameters():
+                        p.requires_grad = True
+                    for p in self.learnable_tactile_mlp.parameters():
+                        p.requires_grad = True
+                elif self.finetune=='fuse':
+                    for p in self.pretrain_tactile_mlp.parameters():
+                        p.requires_grad = False
+                    for p in self.learnable_tactile_mlp.parameters():
+                        p.requires_grad = True
+                elif self.finetune=='fix':
+                    for p in self.pretrain_tactile_mlp.parameters():
+                        p.requires_grad = False
+                    for p in self.learnable_tactile_mlp.parameters():
+                        p.requires_grad = False
 
                 # print(self.pretrain_tactile_mlp[0].weight)
                 # print(self.learnable_tactile_mlp[0].weight)
@@ -774,6 +784,7 @@ class A2CBuilder(NetworkBuilder):
             self.pre_net_path = params.get('pre_net_path', None)
             self.tacencoder_type = params.get('tacencoder_type', None)
             self.n_stack = params.get('n_stack', 4)
+            self.finetune = params.get('finetune', 'ft')
 
     def build(self, name, **kwargs):
         net = A2CBuilder.Network(self.params, **kwargs)

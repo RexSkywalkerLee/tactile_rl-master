@@ -37,6 +37,7 @@ params:
     pre_net_path: ""
     tacencoder_type: 'MLP'
     n_stack: 4
+    finetune: ft
 
 #    rnn:
 #      name: lstm
