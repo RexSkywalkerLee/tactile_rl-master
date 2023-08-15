@@ -478,8 +478,8 @@ class A2CBuilder(NetworkBuilder):
                 for p in self.learnable_tactile_mlp.parameters():
                     p.requires_grad = True
 
-                # print(self.pretrain_tactile_mlp[0].weight)
-                # print(self.learnable_tactile_mlp[0].weight)
+                print(self.pretrain_tactile_mlp[0].weight)
+                print(self.learnable_tactile_mlp[0].weight)
 
         def forward(self, obs_dict):
             obs = obs_dict['obs']
