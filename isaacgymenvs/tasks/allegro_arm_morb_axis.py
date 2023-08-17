@@ -1452,9 +1452,8 @@ class AllegroArmMOAR(VecTask):
             # contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
             #################################
             # Using (-1,1) instead of (0,1)
-            contacts = torch.where(contacts >= self.contact_thresh, 1.0, -1.0)
+            contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
 
-            # Also removing randomlization for the moment...
             latency_samples = torch.rand_like(self.last_contacts)
             latency = torch.where(latency_samples < self.latency, 1, 0)  # with 0.25 probability, the signal is lagged
             self.last_contacts = self.last_contacts * latency + contacts * (1 - latency)
@@ -1464,6 +1463,7 @@ class AllegroArmMOAR(VecTask):
 
             # random mask out the signal.
             sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
+            sensed_contacts = torch.where(sensed_contacts >= 0.1, 1.0, -1.0)
             # sensed_contacts = contacts
             ################################
             #debug_contacts = sensed_contacts.detach().cpu().numpy()
