@@ -25,6 +25,7 @@ params:
     mlp:
       units: [512, 256, 256]
       activation: elu
+      normalization: batch_norm
       d2rl: False
 
       initializer:
@@ -37,7 +38,7 @@ params:
     pre_net_path: ""
     tacencoder_type: 'MLP'
     n_stack: 4
-    finetune: ft
+    finetune: fix
 
 #    rnn:
 #      name: lstm
@@ -117,6 +118,7 @@ params:
         mlp:
           units: [512, 256, 256]
           activation: elu
+          normalization: batch_norm
           d2rl: False
           initializer:
             name: default
