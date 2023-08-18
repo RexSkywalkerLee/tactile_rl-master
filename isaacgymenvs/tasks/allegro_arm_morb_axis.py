@@ -428,7 +428,7 @@ class AllegroArmMOAR(VecTask):
         if self.obs_type in ["oracle_pose", "oracle_null", "oracle_pos", "oracle_orn"]:
             self.n_obs_dim = 52 + self.num_training_objects + 24
         elif self.obs_type == 'ps_w_sensorpos':
-            self.n_obs_dim = 16 + 16 + 16 + 16*3
+            self.n_obs_dim = 16 + 16 + 24 + 16 + 16*3
         else:
             self.n_obs_dim = 85
 
@@ -452,7 +452,7 @@ class AllegroArmMOAR(VecTask):
             "full_contact": 93,
             "partial_contact": 45+16+24,
             "partial_stack": (45+16+24) * self.n_stack,
-            "ps_w_sensorpos": (32+16+16*3) * self.n_stack,
+            "ps_w_sensorpos": (32+24+16+16*3) * self.n_stack,
             "partial_stack_cont": (45 + 16 + 24) * self.n_stack,
             "oracle_pose": (52 + self.num_training_objects + 24) * self.n_stack,
             "oracle_null": (52 + self.num_training_objects + 24) * self.n_stack,
@@ -1463,7 +1463,7 @@ class AllegroArmMOAR(VecTask):
 
             # random mask out the signal.
             sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
-            sensed_contacts = torch.where(sensed_contacts >= 0.1, 1.0, -1.0)
+            sensed_contacts = torch.where(sensed_contacts > 0.1, 1.0, -1.0)
             # sensed_contacts = contacts
             ################################
             #debug_contacts = sensed_contacts.detach().cpu().numpy()
@@ -1480,16 +1480,17 @@ class AllegroArmMOAR(VecTask):
 
              #################################
             # Move tactile obs to the end of tensor for easier separation
-            self.last_obs_buf[:, 32:48] = sensed_contacts
+            self.last_obs_buf[:, 32:56] = self.spin_axis.repeat(1, 8)
+            self.last_obs_buf[:, 56:72] = sensed_contacts
 
             # Add sensor positions (x,y,z) to observation buffer
             sensor_pos = self.rigid_body_states[:,self.sensor_handle_indices][:,:,0:3].transpose(1,2).reshape((-1, 48))
-            self.last_obs_buf[:, 48:96] = sensor_pos
+            self.last_obs_buf[:, 72:120] = sensor_pos
             #################################
  
             # Observation randomization.
             self.last_obs_buf[:, 0:16] += (torch.rand_like(self.last_obs_buf[:, 0:16]) - 0.5) * 2 * 0.06 #75
-            self.last_obs_buf[:, 48:96] += (torch.rand_like(self.last_obs_buf[:, 48:96]) - 0.5) * 2 * 0.006 #75
+            # self.last_obs_buf[:, 72:120] += (torch.rand_like(self.last_obs_buf[:, 72:120]) - 0.5) * 2 * 0.006 #75
             # we need to do randomization by ourselves....
 
             #self.actions

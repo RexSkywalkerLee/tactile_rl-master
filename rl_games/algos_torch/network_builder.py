@@ -226,7 +226,7 @@ class A2CBuilder(NetworkBuilder):
             if self.obs_type == 'ps':
                 input_shape = (self.n_stack * 69 + 32,)
             elif self.obs_type == 'pspos':
-                input_shape = (self.n_stack * 32 + 32,)
+                input_shape = (self.n_stack * 56 + 32,)
             ########
 
             mlp_input_shape = self._calc_input_size(input_shape, self.actor_cnn)
@@ -414,9 +414,9 @@ class A2CBuilder(NetworkBuilder):
                     self.pretrain_tactile_mlp = GCN(4*self.n_stack)
                     # self.learnable_tactile_mlp = GCN(4*self.n_stack)
                     
-                self.nontactile_running_norm = RunningMeanStd((self.n_stack*32,))
+                self.nontactile_running_norm = RunningMeanStd((self.n_stack*56,))
                 # self.sensorpos_running_norm = RunningMeanStd((self.n_stack,3,16))
-                self.bn = torch.nn.BatchNorm1d(self.n_stack*32+32)
+                self.bn = torch.nn.BatchNorm1d(self.n_stack*56+32)
             ############
 
             self.value = torch.nn.Linear(out_size, self.value_size)
@@ -618,9 +618,8 @@ class A2CBuilder(NetworkBuilder):
 
                 elif self.obs_type == 'pspos':
                     obs = obs.reshape((batch_size, self.n_stack, -1)) 
-                    no_tactile_obs = obs[:,:,0:32]
-                    tactile_obs = obs[:,:,32:96].reshape((batch_size,self.n_stack,4,16))
-
+                    no_tactile_obs = obs[:,:,0:56]
+                    tactile_obs = obs[:,:,56:120].reshape((batch_size,self.n_stack,4,16))
                     no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     no_tactile_obs = self.nontactile_running_norm(no_tactile_obs)
                     # tactile_obs[:,:,1:,:] = self.sensorpos_running_norm(tactile_obs[:,:,1:,:])
