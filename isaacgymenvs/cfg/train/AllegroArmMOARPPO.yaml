@@ -25,7 +25,6 @@ params:
     mlp:
       units: [512, 256, 256]
       activation: elu
-      normalization: batch_norm
       d2rl: False
 
       initializer:
@@ -118,7 +117,6 @@ params:
         mlp:
           units: [512, 256, 256]
           activation: elu
-          normalization: batch_norm
           d2rl: False
           initializer:
             name: default
