@@ -367,13 +367,13 @@ class A2CBuilder(NetworkBuilder):
                 if self.tacencoder_type == 'MLP':
                     self.tactile_mlp = torch.nn.Sequential(
                         torch.nn.Linear(tactile_dim, 64),
-                        torch.nn.BatchNorm1d(64),
+                        # torch.nn.BatchNorm1d(64),
                         torch.nn.ELU(),
                         torch.nn.Linear(64, 128),
-                        torch.nn.BatchNorm1d(128),
+                        # torch.nn.BatchNorm1d(128),
                         torch.nn.ELU(), 
                         torch.nn.Linear(128, 32),
-                        torch.nn.BatchNorm1d(32),
+                        # torch.nn.BatchNorm1d(32),
                         torch.nn.ELU()
                     )
 
@@ -460,10 +460,10 @@ class A2CBuilder(NetworkBuilder):
                 self.tactile_mlp.load_state_dict(torch.load(self.pre_net_path))
                 print("Loaded Pretrained Network Weights!")
                 if self.finetune=='ft':
-                    for p in self.pretrain_tactile_mlp.parameters():
+                    for p in self.tactile_mlp.parameters():
                         p.requires_grad = True
                 elif self.finetune=='fix':
-                    for p in self.pretrain_tactile_mlp.parameters():
+                    for p in self.tactile_mlp.parameters():
                         p.requires_grad = False
                         
 

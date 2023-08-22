@@ -1464,7 +1464,6 @@ class AllegroArmMOAR(VecTask):
             # random mask out the signal.
             sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
             sensed_contacts = torch.where(sensed_contacts > 0.1, 1.0, -1.0)
-            # sensed_contacts = contacts
             ################################
             #debug_contacts = sensed_contacts.detach().cpu().numpy()
             # self.debug_cnt += 1
