@@ -428,7 +428,8 @@ class A2CBuilder(NetworkBuilder):
                 elif self.tacencoder_type == 'GNN':
                     self.tactile_mlp = GCN(4)
                     
-                self.conjunct_running_norm = RunningMeanStd((self.n_stack*(69+32),))
+                self.nontactile_running_norm = RunningMeanStd((self.n_stack, 69))
+                self.bn = torch.nn.BatchNorm1d(self.n_stack*(69+32))
             ############
 
             self.value = torch.nn.Linear(out_size, self.value_size)
@@ -650,23 +651,31 @@ class A2CBuilder(NetworkBuilder):
                 elif self.obs_type == 'pspost':
                     obs = obs.reshape((batch_size, self.n_stack, -1)) 
                     no_tactile_obs = obs[:,:,0:69]
-                    tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
-                    tactile_obs = obs[:,:,69:133].reshape((batch_size*self.n_stack,4,16))
-                    exp_batch_size = batch_size * self.n_stack
+                    no_tactile_obs = self.nontactile_running_norm(no_tactile_obs)
 
-                    if self.tacencoder_type == 'MLP':
-                        tactile_obs = tactile_obs.reshape((exp_batch_size,-1))
-                    elif self.tacencoder_type == 'CNN':
-                        tactile_obs = tactile_obs.reshape((exp_batch_size,4,4,4))
-                        tactile_obs = tactile_obs[:,:,[3,2,0,1],:] #[ring, middle, index, thumb]
-                    elif self.tacencoder_type == 'GNN':
-                        tactile_obs = tactile_obs.transpose(1,2)
+                    cat_tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
 
-                    tactile_embed = self.tactile_mlp(tactile_obs)
-                    tactile_embed = tactile_embed.reshape((batch_size, self.n_stack, 32))
+                    cat_tactile_embed = []
+                    for n in range(self.n_stack):
+                        tactile_obs = cat_tactile_obs[:,n]
+
+                        if self.tacencoder_type == 'MLP':
+                            tactile_obs = tactile_obs.reshape((batch_size,-1))
+                        elif self.tacencoder_type == 'CNN':
+                            tactile_obs = tactile_obs.reshape((batch_size,4,4,4))
+                            tactile_obs = tactile_obs[:,:,[3,2,0,1],:] #[ring, middle, index, thumb]
+                        elif self.tacencoder_type == 'GNN':
+                            tactile_obs = tactile_obs.transpose(1,2)
+
+                        tactile_embed = self.tactile_mlp(tactile_obs)
+
+                        cat_tactile_embed.append(tactile_embed[:,None,:])
+
+                    tactile_embed = torch.cat(cat_tactile_embed, dim=1)
+
                     out = torch.cat([no_tactile_obs, tactile_embed], dim=2)
                     out = out.reshape((batch_size, -1))
-                    out = self.conjunct_running_norm(out)
+                    out = self.bn(out)
                     
                 else:
                     out = obs

@@ -136,7 +136,7 @@ class A2CAgent(a2c_common.ContinuousA2CBase):
                     param.grad = None
 
         self.scaler.scale(loss).backward()
-        #TODO: Refactor this ugliest code of they year
+        #TODO: Refactor this ugliest code of the year
         self.trancate_gradients_and_step()
 
         with torch.no_grad():
