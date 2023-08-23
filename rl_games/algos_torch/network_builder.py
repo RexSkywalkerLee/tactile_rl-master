@@ -367,33 +367,25 @@ class A2CBuilder(NetworkBuilder):
                 if self.tacencoder_type == 'MLP':
                     self.tactile_mlp = torch.nn.Sequential(
                         torch.nn.Linear(tactile_dim, 64),
-                        # torch.nn.BatchNorm1d(64),
                         torch.nn.ELU(),
                         torch.nn.Linear(64, 128),
-                        # torch.nn.BatchNorm1d(128),
                         torch.nn.ELU(), 
                         torch.nn.Linear(128, 32),
-                        # torch.nn.BatchNorm1d(32),
                         torch.nn.ELU()
                     )
 
                 elif self.tacencoder_type == 'CNN':
                     self.tactile_mlp = torch.nn.Sequential(
                         torch.nn.Conv2d(4*self.n_stack, 16, kernel_size=2),
-                        torch.nn.BatchNorm2d(16),
                         torch.nn.ELU(),
                         torch.nn.Conv2d(16, 32, kernel_size=2),
-                        torch.nn.BatchNorm2d(32),
                         torch.nn.ELU(),
                         torch.nn.Conv2d(32, 64, kernel_size=2),
-                        torch.nn.BatchNorm2d(64),
                         torch.nn.ELU(),
                         Flatten(),
                         torch.nn.Linear(64, 128),
-                        torch.nn.BatchNorm1d(128),
                         torch.nn.ELU(),
                         torch.nn.Linear(128, 32),
-                        torch.nn.BatchNorm1d(32),
                         torch.nn.ELU(),
                     )
 
@@ -402,7 +394,7 @@ class A2CBuilder(NetworkBuilder):
                     
                 self.nontactile_running_norm = RunningMeanStd((self.n_stack*69,))
                 # self.sensorpos_running_norm = RunningMeanStd((self.n_stack,3,16))
-                # self.bn = torch.nn.BatchNorm1d(self.n_stack*69+32)
+                self.bn = torch.nn.BatchNorm1d(self.n_stack*69+32)
             ############
 
             self.value = torch.nn.Linear(out_size, self.value_size)
@@ -607,6 +599,7 @@ class A2CBuilder(NetworkBuilder):
 
                     if self.tacencoder_type == 'MLP':
                         tactile_obs = tactile_obs.reshape((batch_size,-1))
+                        print(tactile_obs[0])
                     elif self.tacencoder_type == 'CNN':
                         tactile_obs = tactile_obs.reshape((batch_size, self.n_stack,4,4,4))
                         tactile_obs = tactile_obs[:,:,:,[3,2,0,1],:] #[ring, middle, index, thumb]
@@ -617,7 +610,7 @@ class A2CBuilder(NetworkBuilder):
 
                     tactile_embed = self.tactile_mlp(tactile_obs)
                     out = torch.cat([no_tactile_obs, tactile_embed], dim=1)
-                    # out = self.bn(out)
+                    out = self.bn(out)
                     
                 else:
                     out = obs
