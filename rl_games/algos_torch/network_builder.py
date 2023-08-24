@@ -226,7 +226,7 @@ class A2CBuilder(NetworkBuilder):
             if self.obs_type == 'ps':
                 input_shape = (self.n_stack * 69 + 32,)
             elif self.obs_type == 'pspos':
-                input_shape = (self.n_stack * 69 + 32,)
+                input_shape = (self.n_stack * 85 + 32,)
             elif self.obs_type == 'pspost':
                 input_shape = (self.n_stack * (69+32),)
             ########
@@ -394,9 +394,9 @@ class A2CBuilder(NetworkBuilder):
                 elif self.tacencoder_type == 'GNN':
                     self.tactile_mlp = GCN(4*self.n_stack)
                     
-                self.nontactile_running_norm = RunningMeanStd((self.n_stack*69,))
+                self.nontactile_running_norm = RunningMeanStd((self.n_stack*85,))
                 # self.sensorpos_running_norm = RunningMeanStd((self.n_stack,3,16))
-                self.bn = torch.nn.BatchNorm1d(self.n_stack*69+32)
+                self.bn = torch.nn.BatchNorm1d(self.n_stack*85+32)
 
             
             elif self.obs_type == 'pspost':
@@ -623,10 +623,8 @@ class A2CBuilder(NetworkBuilder):
 
                 elif self.obs_type == 'pspos':
                     obs = obs.reshape((batch_size, self.n_stack, -1)) 
-                    no_tactile_obs = obs[:,:,0:69]
+                    no_tactile_obs = obs[:,:,0:85]
                     tactile_obs = obs[:,:,69:133].reshape((batch_size,self.n_stack,4,16))
-                    no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
-                    no_tactile_obs = self.nontactile_running_norm(no_tactile_obs)
                     # tactile_obs[:,:,1:,:] = self.sensorpos_running_norm(tactile_obs[:,:,1:,:])
                     # tactile_obs[:,:,1:,0] = 0.0
                     # tactile_obs[:,:,1:,4] = 0.0
@@ -645,6 +643,9 @@ class A2CBuilder(NetworkBuilder):
                         tactile_obs = tactile_obs.transpose(1,2)
 
                     tactile_embed = self.tactile_mlp(tactile_obs)
+
+                    no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
+                    no_tactile_obs = self.nontactile_running_norm(no_tactile_obs)
                     out = torch.cat([no_tactile_obs, tactile_embed], dim=1)
                     out = self.bn(out)
 
@@ -678,7 +679,6 @@ class A2CBuilder(NetworkBuilder):
                     out = self.bn(out)
                     
                 else:
-                    out = obs
                     out = self.actor_cnn(out)
                     out = out.flatten(1)
 
