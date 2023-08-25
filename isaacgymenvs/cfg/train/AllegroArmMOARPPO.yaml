@@ -32,7 +32,7 @@ params:
       regularizer:
         name: None
 
-    obs_type: 'pspost'
+    obs_type: 'pspos'
     use_pretrain_tactile: False
     pre_net_path: ""
     tacencoder_type: 'MLP'

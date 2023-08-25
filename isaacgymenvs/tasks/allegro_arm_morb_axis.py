@@ -429,6 +429,8 @@ class AllegroArmMOAR(VecTask):
             self.n_obs_dim = 52 + self.num_training_objects + 24
         elif self.obs_type == 'ps_w_sensorpos':
             self.n_obs_dim = 85 + 16*3
+        elif self.obs_type == 'ps_sensorpos_sub':
+            self.n_obs_dim = 85 + 16
         else:
             self.n_obs_dim = 85
 
@@ -453,6 +455,7 @@ class AllegroArmMOAR(VecTask):
             "partial_contact": 45+16+24,
             "partial_stack": (45+16+24) * self.n_stack,
             "ps_w_sensorpos": (45+16+24+16*3) * self.n_stack,
+            "ps_sensorpos_sub": (45+24+32) * self.n_stack,
             "partial_stack_cont": (45 + 16 + 24) * self.n_stack,
             "oracle_pose": (52 + self.num_training_objects + 24) * self.n_stack,
             "oracle_null": (52 + self.num_training_objects + 24) * self.n_stack,
@@ -623,6 +626,23 @@ class AllegroArmMOAR(VecTask):
 
         self.debug_avg = np.zeros((1,16))
         self.debug_cnt = 0
+
+        #############################
+        if self.obs_type == 'ps_sensorpos_sub':
+            self.tactile_mlp = torch.nn.Sequential(
+            torch.nn.Linear(4*64, 64),
+            torch.nn.ELU(),
+            torch.nn.Linear(64, 128),
+            torch.nn.ELU(), 
+            torch.nn.Linear(128, 32),
+            torch.nn.ELU()
+            )
+            self.tactile_mlp.load_state_dict(torch.load('mlp_encoder_r3m.pth'))
+            for p in self.tactile_mlp.parameters():
+                p.requires_grad = False
+
+            self.tactile_buf = torch.zeros((self.num_envs, 64), device=self.device, dtype=torch.float)
+        #############################
 
     def get_internal_state(self):
         return self.root_state_tensor[self.object_indices, 3:7]
@@ -1160,6 +1180,8 @@ class AllegroArmMOAR(VecTask):
             self.compute_contact_observations('ps')
         elif self.obs_type == 'ps_w_sensorpos':
             self.compute_contact_observations('pspos')
+        elif self.obs_type == 'ps_sensorpos_sub':
+            self.compute_contact_observations('pspos_sub')
         elif self.obs_type == "partial_stack_cont":
             self.compute_contact_observations('psc')
         elif self.obs_type in ["oracle_pose", "oracle_pos", "oracle_orn"]:
@@ -1511,6 +1533,133 @@ class AllegroArmMOAR(VecTask):
             # print("OS", self.obs_buf[0])
             self.finger_contacts = gt_contacts
             self.tip_contacts = tip_contacts
+
+
+        elif mode == 'pspos_sub':
+            if self.asymmetric_obs:
+                self.states_buf[:, 0:self.num_arm_hand_dofs] = unscale(self.arm_hand_dof_pos,
+                                                                       self.arm_hand_dof_lower_limits,
+                                                                       self.arm_hand_dof_upper_limits)
+                self.states_buf[:, self.num_arm_hand_dofs:2 * self.num_arm_hand_dofs] = self.vel_obs_scale * self.arm_hand_dof_vel
+                self.states_buf[:, 2 * self.num_arm_hand_dofs:3 * self.num_arm_hand_dofs] = self.force_torque_obs_scale * self.dof_force_tensor
+
+                obj_obs_start = 3 * self.num_arm_hand_dofs  # 66
+                self.states_buf[:, obj_obs_start:obj_obs_start + 7] = self.object_pose
+                self.states_buf[:, obj_obs_start + 7:obj_obs_start + 10] = self.object_linvel
+                self.states_buf[:, obj_obs_start + 10:obj_obs_start + 13] = self.vel_obs_scale * self.object_angvel
+
+                # goal_obs_start = obj_obs_start + 13  # 79
+                # self.states_buf[:, goal_obs_start:goal_obs_start + 7] = self.goal_pose
+                # self.states_buf[:, goal_obs_start + 7:goal_obs_start + 11] = quat_mul(self.object_rot,
+                #                                                                       quat_conjugate(self.goal_rot))
+
+                # fingertip observations, state(pose and vel) + force-torque sensors
+                # todo - add later
+                # num_ft_states = 13 * self.num_fingertips  # 65
+                # num_ft_force_torques = 6 * self.num_fingertips  # 30
+
+                # fingertip_obs_start = obj_obs_start + 13  # 72
+                # self.states_buf[:, fingertip_obs_start:fingertip_obs_start + num_ft_states] = self.fingertip_state.reshape(self.num_envs, num_ft_states)
+                # self.states_buf[:, fingertip_obs_start + num_ft_states:fingertip_obs_start + num_ft_states +
+                #                 num_ft_force_torques] = self.force_torque_obs_scale * self.vec_sensor_tensor
+
+                # obs_end = 96 + 65 + 30 = 191
+                # obs_total = obs_end + num_actions = 72 + 16 = 88
+                obs_end = 79 #+ 22 = 101#fingertip_obs_start  # + num_ft_states + num_ft_force_torques
+                self.states_buf[:, obs_end:obs_end + self.num_actions] = self.actions
+                self.states_buf[:, obs_end + self.num_actions: obs_end + self.num_actions + 24] = self.spin_axis.repeat(1, 8)
+
+                all_contact = self.contact_tensor.reshape(-1, 49, 3).clone()
+                all_contact = torch.norm(all_contact, dim=-1).float()
+                all_contact = torch.where(all_contact >= 20.0, torch.ones_like(all_contact), all_contact / 20.0)
+                self.states_buf[:, obs_end + self.num_actions + 24: obs_end + self.num_actions + 24 + 49] = all_contact
+                self.states_buf[:, obs_end + self.num_actions + 24 + 49:
+                                   obs_end + self.num_actions + 24 + 49 + self.num_training_objects] = self.object_one_hot_vector
+
+                end_pos = obs_end + self.num_actions + 24 + 49 + self.num_training_objects
+                self.states_buf[:, end_pos:end_pos + 16] = self.prev_targets[:, 6:22]
+
+            self.last_obs_buf[:, 0:self.num_arm_hand_dofs] = unscale(self.arm_hand_dof_pos,
+                                                                self.arm_hand_dof_lower_limits,
+                                                                self.arm_hand_dof_upper_limits)
+            self.last_obs_buf[:, 0:6] = 0.0
+            # self.obs_buf[:, 16:23] = self.goal_pose
+
+
+            self.last_obs_buf[:, 22:45] = 0#self.actions
+
+            #print("CONTACT_SHAPE", self.contact_tensor.shape)
+            contacts = self.contact_tensor.reshape(-1, 49, 3).clone()  # 39+27
+            # print("TIP", torch.norm(contacts, dim=-1).sum(-1))
+            contacts = contacts[:, self.sensor_handle_indices, :] # 12
+            tip_contacts = contacts[:, self.fingertip_indices, :]
+
+            contacts = torch.norm(contacts, dim=-1)
+            tip_contacts = torch.norm(tip_contacts, dim=-1)
+            #print("TIP", contacts)
+            gt_contacts = torch.where(contacts >= 1.0, 1.0, 0.0).clone()
+            tip_contacts = torch.where(tip_contacts >= 0.5, 1.0, 0.0).clone()
+
+            # we use some randomized threshold.
+            # threshold = 0.2 + torch.rand_like(contacts) * self.sensor_thresh
+            # contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
+            #################################
+            # Using (-1,1) instead of (0,1)
+            contacts = torch.where(contacts >= self.contact_thresh, 1.0, 0.0)
+
+            latency_samples = torch.rand_like(self.last_contacts)
+            latency = torch.where(latency_samples < self.latency, 1, 0)  # with 0.25 probability, the signal is lagged
+            self.last_contacts = self.last_contacts * latency + contacts * (1 - latency)
+
+            mask = torch.rand_like(self.last_contacts)
+            mask = torch.where(mask < self.sensor_noise, 0.0, 1.0)
+
+            # random mask out the signal.
+            sensed_contacts = torch.where(self.last_contacts > 0.1, mask * self.last_contacts, self.last_contacts)
+            sensed_contacts = torch.where(sensed_contacts > 0.1, 1.0, -1.0)
+            # sensed_contacts = contacts
+            ################################
+            #debug_contacts = sensed_contacts.detach().cpu().numpy()
+            # self.debug_cnt += 1
+            # self.debug_avg = self.debug_avg*(self.debug_cnt-1)/self.debug_cnt + debug_contacts/self.debug_cnt
+            # print(self.debug_avg)
+            if self.use_disable:
+                sensed_contacts[:, self.disable_sensor_idxes] = 0
+            # Do some data augmentation to the contact....
+            self.sensed_contacts = sensed_contacts
+            
+            if self.viewer:
+                self.debug_contacts = sensed_contacts.detach().cpu().numpy()
+
+             #################################
+            self.last_obs_buf[:, 45:69] = self.spin_axis.repeat(1, 8)
+
+            sensor_pos = self.rigid_body_states[:,self.sensor_handle_indices][:,:,0:3].transpose(1,2)
+            last_tactile_buf = torch.cat([sensed_contacts, sensor_pos], dim=1).reshape((-1, 64))
+            self.tactile_buf = torch.cat((last_tactile_buf.clone(), self.tactile_buf[:, :-64]), dim=-1)
+            print(self.tactile_buf)
+            tactile_embed = self.tactile_mlp(self.tactile_buf)
+            self.last_obs_buf[:, 69:101] = tactile_embed
+            #################################
+ 
+            # Observation randomization.
+            self.last_obs_buf[:, 6:22] += (torch.rand_like(self.last_obs_buf[:, 6:22]) - 0.5) * 2 * 0.06 #75
+            # we need to do randomization by ourselves....
+
+            #self.actions
+            self.last_obs_buf[:, 22:23+6] =  0 #self.actions
+            self.last_obs_buf[:, 23+6:23+22] = unscale(self.prev_targets,
+                                                       self.arm_hand_dof_lower_limits,
+                                                       self.arm_hand_dof_upper_limits)[:, 6:22]
+
+            init_obs_ids = torch.where(self.init_stack_buf == 1)
+            self.init_stack_buf[init_obs_ids] = 0
+            self.obs_buf[init_obs_ids] = self.last_obs_buf[init_obs_ids].repeat(1, self.n_stack)
+            self.obs_buf = torch.cat((self.last_obs_buf.clone(), self.obs_buf[:, :-self.n_obs_dim]), dim=-1)
+            # print("OS", self.obs_buf[0])
+            self.finger_contacts = gt_contacts
+            self.tip_contacts = tip_contacts
+
 
         elif mode == 'oracle_s':
             if self.asymmetric_obs:
@@ -2076,9 +2225,12 @@ class AllegroArmMOAR(VecTask):
         self.randomize_d_gain_lower = self.d_gain_val * 0.75
         self.randomize_d_gain_upper = self.d_gain_val * 1.05
 
-        if self.obs_type == 'partial_stack' or self.obs_type == 'ps_w_sensorpos':
+        if self.obs_type == 'partial_stack' or self.obs_type == 'ps_w_sensorpos' or self.obs_type == 'ps_sensorpos_sub':
             self.obs_buf[env_ids] = 0
             self.init_stack_buf[env_ids] = 1
+
+        if self.obs_type == 'ps_sensorpos_sub':
+            self.tactile_buf[env_ids] = 0
 
         self.p_gain[env_ids] = torch_rand_float(
             self.randomize_p_gain_lower, self.randomize_p_gain_upper, (len(env_ids), self.num_actions),
