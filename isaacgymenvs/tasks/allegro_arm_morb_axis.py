@@ -629,6 +629,11 @@ class AllegroArmMOAR(VecTask):
 
         #############################
         if self.obs_type == 'ps_sensorpos_sub':
+            self.default_sensor_pos = torch.tensor([[0.61495715, 0.66444343, 0.71806127, 0.78077048, 0.5670653,  0.54845995, 0.54261941, 0.53112364, 0.61804813, 0.66795647, 0.7211858, 0.78444564, 0.61714298, 0.66693163, 0.72080028, 0.78380185],
+                                                    [-0.06310477, -0.06982468, -0.07576894, -0.08210965, 0.01363752, -0.11334582, -0.16421825, -0.20303699, -0.02233342, -0.02513841, -0.03352193, -0.04151498, 0.01853156, 0.02310617, 0.02653283, 0.03122764],
+                                                    [0.33723688, 0.33389741, 0.33149001, 0.32169658, 0.34693176, 0.32067984, 0.31622511, 0.3130703, 0.34086221, 0.33819461, 0.33693373, 0.33524179, 0.34463498, 0.34231904, 0.34076089, 0.33196777]],
+                                                    device=self.device)
+            
             self.tactile_mlp = torch.nn.Sequential(
             torch.nn.Linear(4*64, 64),
             torch.nn.ELU(),
@@ -637,11 +642,11 @@ class AllegroArmMOAR(VecTask):
             torch.nn.Linear(128, 32),
             torch.nn.ELU()
             )
-            self.tactile_mlp.load_state_dict(torch.load('mlp_encoder_r3m.pth'))
+            self.tactile_mlp.load_state_dict(torch.load('mlp_encoder_r3mrand.pth'))
             for p in self.tactile_mlp.parameters():
                 p.requires_grad = False
-
-            self.tactile_buf = torch.zeros((self.num_envs, 64), device=self.device, dtype=torch.float)
+            self.tactile_mlp = self.tactile_mlp.to(self.device)
+            self.tactile_buf = torch.zeros((self.num_envs, self.n_stack*64), device=self.device, dtype=torch.float)
         #############################
 
     def get_internal_state(self):
@@ -1636,11 +1641,18 @@ class AllegroArmMOAR(VecTask):
             self.last_obs_buf[:, 45:69] = self.spin_axis.repeat(1, 8)
 
             sensor_pos = self.rigid_body_states[:,self.sensor_handle_indices][:,:,0:3].transpose(1,2)
-            last_tactile_buf = torch.cat([sensed_contacts, sensor_pos], dim=1).reshape((-1, 64))
+            sensor_pos -= self.default_sensor_pos
+            sensor_pos += (torch.rand_like(sensor_pos) - 0.5) * 2 * 6e-4
+            sensor_pos[:,:,0] = 0.0
+            sensor_pos[:,:,4] = 0.0
+            sensor_pos[:,:,8] = 0.0
+            sensor_pos[:,:,12] = 0.0
+
+            last_tactile_buf = torch.cat([sensed_contacts[:,None,:], sensor_pos], dim=1).reshape((-1, 64))
             self.tactile_buf = torch.cat((last_tactile_buf.clone(), self.tactile_buf[:, :-64]), dim=-1)
-            print(self.tactile_buf)
+            # print(self.tactile_buf[0])
             tactile_embed = self.tactile_mlp(self.tactile_buf)
-            self.last_obs_buf[:, 69:101] = tactile_embed
+            self.last_obs_buf[:, 69:69+32] = tactile_embed
             #################################
  
             # Observation randomization.
