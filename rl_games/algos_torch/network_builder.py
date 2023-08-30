@@ -226,7 +226,7 @@ class A2CBuilder(NetworkBuilder):
             if self.obs_type == 'ps':
                 input_shape = (self.n_stack * 69 + 32,)
             elif self.obs_type == 'pspos':
-                input_shape = (self.n_stack * 69 + 256,)
+                input_shape = (self.n_stack * 69 + 32,)
             elif self.obs_type == 'pspost':
                 input_shape = (self.n_stack * (69+32),)
             ########
@@ -396,7 +396,7 @@ class A2CBuilder(NetworkBuilder):
                     
                 self.nontactile_running_norm = RunningMeanStd((self.n_stack*69,))
                 # self.sensorpos_running_norm = RunningMeanStd((self.n_stack,3,16))
-                self.bn = torch.nn.BatchNorm1d(self.n_stack*69+256)
+                self.bn = torch.nn.BatchNorm1d(self.n_stack*69+32)
 
             
             elif self.obs_type == 'pspost':
@@ -641,10 +641,10 @@ class A2CBuilder(NetworkBuilder):
                         tactile_obs = tactile_obs.transpose(1,2)
 
                     tactile_embed = self.tactile_mlp(tactile_obs)
-                    
+
                     no_tactile_obs = no_tactile_obs.reshape((batch_size,-1))
                     no_tactile_obs = self.nontactile_running_norm(no_tactile_obs)
-                    out = torch.cat([no_tactile_obs, tactile_embed], dim=1)
+                    out = torch.cat([no_tactile_obs, tactile_embed], dim=-1)
                     out = self.bn(out)
 
                 elif self.obs_type == 'pspost':
